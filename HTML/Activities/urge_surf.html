@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Kira — Urge Surfing</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --rose: #e8a5b0;
+      --blush: #f2c4ce;
+      --lavender: #c9b8e8;
+      --deep: #2d1f35;
+      --card: rgba(255, 255, 255, 0.09);
+      --border: rgba(255, 255, 255, 0.14);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: var(--deep);
+      font-family: 'DM Sans', sans-serif;
+      color: white;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      touch-action: none;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -30%;
+      left: -20%;
+      width: 70%;
+      height: 70%;
+      background: radial-gradient(circle, rgba(201, 184, 232, 0.22) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -20%;
+      right: -20%;
+      width: 60%;
+      height: 60%;
+      background: radial-gradient(circle, rgba(232, 165, 176, 0.18) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(18px + env(safe-area-inset-top, 0px)) 20px 12px;
+      position: relative;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .header-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 24px;
+      color: var(--blush);
+      letter-spacing: 0.5px;
+    }
+
+    .exit-btn {
+      position: absolute;
+      right: 20px;
+      top: calc(18px + env(safe-area-inset-top, 0px));
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      font-family: 'DM Sans', sans-serif;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .exit-btn:active {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    /* ── Content Area ── */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 24px 24px;
+    }
+
+    /* ── Start Screen ── */
+    #startScreen {
+      justify-content: center;
+      padding-bottom: 80px;
+      position: relative;
+    }
+
+    /* ── Explanation Card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px 22px;
+      width: 100%;
+      max-width: 380px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .card p {
+      font-size: 15px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.78);
+      font-weight: 300;
+      text-align: left;
+    }
+
+    .card strong {
+      color: var(--lavender);
+      font-weight: 500;
+    }
+
+    .urge-examples {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .urge-chip {
+      min-height: 34px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.055);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.58);
+    }
+
+    /* ── Duration Picker ── */
+    .duration-picker {
+      display: flex;
+      gap: 14px;
+      margin: 28px 0 24px;
+    }
+
+    .pill-btn {
+      padding: 14px 34px;
+      border-radius: 28px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: rgba(255, 255, 255, 0.7);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 44px;
+      min-height: 48px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      letter-spacing: 0.3px;
+    }
+
+    .pill-btn.active {
+      background: linear-gradient(135deg, var(--lavender), var(--rose));
+      color: var(--deep);
+      border-color: transparent;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(201, 184, 232, 0.3);
+    }
+
+    .pill-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* ── Start Button ── */
+    .start-btn {
+      width: 100%;
+      max-width: 300px;
+      padding: 18px;
+      border: none;
+      border-radius: 28px;
+      background: linear-gradient(135deg, var(--lavender), var(--rose));
+      color: var(--deep);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s, box-shadow 0.3s;
+      min-height: 56px;
+      box-shadow: 0 6px 30px rgba(201, 184, 232, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .start-btn:active {
+      transform: scale(0.97);
+      opacity: 0.9;
+    }
+
+    /* ── Start screen wave preview ── */
+    .start-wave-preview {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 140px;
+      pointer-events: none;
+      opacity: 0.35;
+      z-index: 0;
+    }
+
+    /* ── Full-screen Ocean Waves (Timer Screen) ── */
+    .ocean-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .ocean-svg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .ocean-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 55%;
+      background: linear-gradient(to bottom, var(--deep) 0%, rgba(45,31,53,0.95) 40%, rgba(45,31,53,0.6) 70%, transparent 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Shimmer dots on the wave surface */
+    .shimmer-dot {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.7);
+      pointer-events: none;
+      z-index: 2;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .surfboard {
+      transform-origin: center;
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,0.32));
+    }
+
+    .wave-curl {
+      filter: drop-shadow(0 8px 12px rgba(45,31,53,0.18));
+    }
+
+    @keyframes shimmer {
+      0%, 100% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 0.8; transform: scale(1.2); }
+    }
+
+    /* ── Timer Screen Layout ── */
+    #timerScreen {
+      position: relative;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .timer-content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 40px;
+      width: 100%;
+    }
+
+    /* ── Timer Display ── */
+    .timer-display {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 84px;
+      font-weight: 300;
+      letter-spacing: 4px;
+      color: var(--blush);
+      text-align: center;
+      line-height: 1;
+      text-shadow: 0 0 40px rgba(201, 184, 232, 0.4), 0 0 80px rgba(201, 184, 232, 0.15);
+    }
+
+    .timer-label {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 6px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Progress Bar ── */
+    .progress-bar-container {
+      width: 160px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--lavender), var(--rose));
+      border-radius: 2px;
+      transition: width 1s linear;
+      width: 100%;
+    }
+
+    /* ── Mindfulness Prompt ── */
+    .mindfulness-prompt {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 20px;
+      color: var(--lavender);
+      text-align: center;
+      line-height: 1.55;
+      padding: 0 20px;
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+      position: relative;
+      z-index: 10;
+    }
+
+    .mindfulness-prompt.fading {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+
+    /* ── Craving Check-in Overlay (Bottom Sheet Style) ── */
+    .checkin-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(45, 31, 53, 0.7);
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .checkin-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .checkin-card {
+      background: rgba(58, 42, 69, 0.98);
+      border: 1px solid var(--border);
+      border-radius: 24px 24px 0 0;
+      padding: 32px 28px calc(40px + env(safe-area-inset-bottom, 0px));
+      text-align: center;
+      width: 100%;
+      max-width: 420px;
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .checkin-overlay.visible .checkin-card {
+      transform: translateY(0);
+    }
+
+    .checkin-handle {
+      width: 36px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+
+    .checkin-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 22px;
+      color: var(--blush);
+      margin-bottom: 22px;
+    }
+
+    .intensity-scale {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .intensity-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: rgba(255, 255, 255, 0.7);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .intensity-btn:active,
+    .intensity-btn.selected {
+      background: linear-gradient(135deg, var(--lavender), var(--rose));
+      color: var(--deep);
+      border-color: transparent;
+      transform: scale(1.1);
+    }
+
+    .checkin-dismiss {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.3);
+      margin-top: 18px;
+    }
+
+    /* ── Completion Screen ── */
+    .completion-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+      flex: 1;
+      position: relative;
+      z-index: 10;
+    }
+
+    .completion-screen.visible {
+      display: flex;
+    }
+
+    .completion-icon {
+      font-size: 28px;
+      color: var(--lavender);
+      margin-bottom: 20px;
+      animation: gentlePulse 2.5s ease-in-out infinite;
+      opacity: 0;
+      animation-delay: 0.2s;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes gentlePulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.15); }
+    }
+
+    .completion-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 36px;
+      color: var(--blush);
+      line-height: 1.35;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: completionFadeUp 0.8s ease forwards;
+      animation-delay: 0.4s;
+    }
+
+    .completion-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 22px;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 300;
+      margin-top: 6px;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: completionFadeUp 0.8s ease forwards;
+      animation-delay: 0.7s;
+    }
+
+    @keyframes completionFadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Celebration particles ── */
+    .particles-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+    }
+
+    .particle-circle {
+      animation: particleFloatUp 3.5s ease-out forwards;
+    }
+
+    .particle-star {
+      border-radius: 0;
+      animation: particleFloatSpin 4s ease-out forwards;
+    }
+
+    .particle-diamond {
+      border-radius: 2px;
+      animation: particleFloatDiamond 3.8s ease-out forwards;
+    }
+
+    @keyframes particleFloatUp {
+      0% { opacity: 0.9; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-280px) scale(0.2); }
+    }
+
+    @keyframes particleFloatSpin {
+      0% { opacity: 0.9; transform: translateY(0) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translateY(-250px) rotate(360deg) scale(0.1); }
+    }
+
+    @keyframes particleFloatDiamond {
+      0% { opacity: 0.8; transform: translateY(0) rotate(45deg) scale(1); }
+      100% { opacity: 0; transform: translateY(-300px) rotate(45deg) scale(0.15); }
+    }
+
+    /* ── Rating Overlay ── */
+    .rating-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .rating-overlay.visible { opacity: 1; pointer-events: auto; }
+    .rating-sheet {
+      background: #3a2a45;
+      border-radius: 24px 24px 0 0;
+      padding: 28px 24px calc(36px + env(safe-area-inset-bottom, 0px));
+      width: 100%;
+      max-width: 420px;
+      transform: translateY(100%);
+      transition: transform 0.35s ease;
+      text-align: center;
+    }
+    .rating-overlay.visible .rating-sheet { transform: translateY(0); }
+    .rating-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 300;
+      font-style: italic;
+      color: white;
+      margin-bottom: 6px;
+    }
+    .rating-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 20px;
+    }
+    .rating-stars {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .rating-star {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.14);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: rgba(255,255,255,0.3);
+    }
+    .rating-star.lit {
+      background: rgba(232,165,176,0.2);
+      border-color: rgba(232,165,176,0.4);
+      color: #e8a5b0;
+    }
+    .rating-star:active { transform: scale(0.9); }
+    .rating-submit-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #c9b8e8, #e8a5b0);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: white;
+      cursor: pointer;
+      min-height: 50px;
+      transition: transform 0.15s, opacity 0.3s;
+      opacity: 0.35;
+    }
+    .rating-submit-btn.enabled { opacity: 1; }
+    .rating-submit-btn:active { transform: scale(0.97); }
+    .rating-skip {
+      margin-top: 14px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.3);
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    /* ── Error Toast ── */
+    .error-toast {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(60, 45, 70, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      z-index: 200;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+
+    .error-toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Confirm Dialog ── */
+    .confirm-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 150;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .confirm-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .confirm-card {
+      background: #3a2a45;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 24px 20px;
+      text-align: center;
+      max-width: 280px;
+      width: 90%;
+    }
+
+    .confirm-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 20px;
+      color: var(--blush);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .confirm-msg {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .confirm-btn {
+      flex: 1;
+      padding: 12px 0;
+      min-height: 44px;
+      border-radius: 14px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .confirm-btn:active {
+      transform: scale(0.96);
+    }
+
+    .confirm-stay {
+      background: rgba(255,255,255,0.09);
+      color: rgba(255,255,255,0.7);
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+
+    .confirm-leave {
+      background: var(--rose);
+      color: var(--deep);
+    }
+
+    /* ── Screen transitions ── */
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* ── Utility ── */
+    .fade-in {
+      animation: fadeUp 0.6s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-wrapper">
+
+    <!-- Header -->
+    <div class="header">
+      <span class="header-title">Urge Surfing</span>
+      <button class="exit-btn" type="button" onclick="confirmExit()" aria-label="Exit">&#10005;</button>
+    </div>
+
+    <!-- ===== START SCREEN ===== -->
+    <div class="content screen active" id="startScreen">
+
+      <div class="card">
+        <p style="margin-bottom:12px;"><strong>Urges peak and pass like waves.</strong> This can help with cravings, wanting to send an angry text, snapping, checking, scrolling, or acting before you are ready.</p>
+        <p style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;">
+          Watch the wave rise and fall. Notice where the urge lives in your body. You do not have to fight it or obey it. Just stay with it until it changes.
+        </p>
+        <div class="urge-examples">
+          <div class="urge-chip">Cravings</div>
+          <div class="urge-chip">Angry texts</div>
+          <div class="urge-chip">Outbursts</div>
+          <div class="urge-chip">Checking loops</div>
+        </div>
+      </div>
+
+      <div class="duration-picker">
+        <button class="pill-btn" id="btn5" onclick="pickDuration(5)">5 min</button>
+        <button class="pill-btn active" id="btn15" onclick="pickDuration(15)">15 min</button>
+      </div>
+
+      <button class="start-btn" onclick="startTimer()">Begin Surfing</button>
+
+      <!-- Subtle wave preview behind start area -->
+      <svg class="start-wave-preview" viewBox="0 0 400 140" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="previewGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="var(--lavender)" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="var(--rose)" stop-opacity="0.25"/>
+          </linearGradient>
+        </defs>
+        <path id="previewWave" fill="url(#previewGrad)" d="M0,100 C100,90 300,110 400,95 L400,140 L0,140 Z"/>
+      </svg>
+    </div>
+
+    <!-- ===== TIMER SCREEN ===== -->
+    <div class="content screen" id="timerScreen">
+
+      <!-- Full-screen ocean -->
+      <div class="ocean-container" id="oceanContainer">
+        <svg class="ocean-svg" viewBox="0 0 400 800" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="waveGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="var(--lavender)" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="var(--rose)" stop-opacity="0.15"/>
+            </linearGradient>
+            <linearGradient id="waveGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="var(--rose)" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="var(--lavender)" stop-opacity="0.2"/>
+            </linearGradient>
+            <linearGradient id="waveGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="var(--lavender)" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="var(--rose)" stop-opacity="0.3"/>
+            </linearGradient>
+            <linearGradient id="waveGrad4" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="var(--blush)" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="var(--lavender)" stop-opacity="0.35"/>
+            </linearGradient>
+            <linearGradient id="waterFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--lavender)" stop-opacity="0.08"/>
+              <stop offset="100%" stop-color="var(--rose)" stop-opacity="0.15"/>
+            </linearGradient>
+            <linearGradient id="curlGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.62"/>
+              <stop offset="55%" stop-color="var(--blush)" stop-opacity="0.38"/>
+              <stop offset="100%" stop-color="var(--lavender)" stop-opacity="0.18"/>
+            </linearGradient>
+            <linearGradient id="boardGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#f6d3dc"/>
+              <stop offset="48%" stop-color="#e8a5b0"/>
+              <stop offset="100%" stop-color="#c9b8e8"/>
+            </linearGradient>
+          </defs>
+          <!-- Background water body -->
+          <rect id="waterBody" x="0" y="560" width="400" height="240" fill="url(#waterFill)"/>
+          <!-- Wave layers back to front -->
+          <path id="wave1" fill="url(#waveGrad1)" d="M0,560 C100,560 300,560 400,560 L400,800 L0,800 Z"/>
+          <path id="wave2" fill="url(#waveGrad2)" d="M0,570 C100,570 300,570 400,570 L400,800 L0,800 Z"/>
+          <path id="wave3" fill="url(#waveGrad3)" d="M0,580 C100,580 300,580 400,580 L400,800 L0,800 Z"/>
+          <path id="wave4" fill="url(#waveGrad4)" d="M0,590 C100,590 300,590 400,590 L400,800 L0,800 Z"/>
+          <path id="waveCurl" class="wave-curl" fill="url(#curlGrad)" opacity="0.72" d="M400,520 C340,486 324,558 362,585 C322,572 292,542 286,506 C334,500 378,496 400,520 Z"/>
+          <g id="surfboard" class="surfboard">
+            <path d="M-58 0 C-45 -15 45 -15 58 0 C45 15 -45 15 -58 0Z" fill="url(#boardGrad)"/>
+            <path d="M-52 0 C-36 -7 36 -7 52 0 C36 7 -36 7 -52 0Z" fill="rgba(255,255,255,0.16)"/>
+            <path d="M-50 0 L50 0" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M12 -9 C21 -4 22 4 12 9" fill="rgba(255,255,255,0.25)"/>
+            <path d="M-5 11 L8 11 L1 22 Z" fill="rgba(201,184,232,0.8)"/>
+          </g>
+        </svg>
+        <!-- Gradient overlay for text readability -->
+        <div class="ocean-overlay"></div>
+        <!-- Shimmer dots -->
+        <div class="shimmer-dot" id="shimmer1" style="left:20%; animation-delay:0s;"></div>
+        <div class="shimmer-dot" id="shimmer2" style="left:45%; animation-delay:1s;"></div>
+        <div class="shimmer-dot" id="shimmer3" style="left:70%; animation-delay:1.8s;"></div>
+        <div class="shimmer-dot" id="shimmer4" style="left:88%; animation-delay:0.6s;"></div>
+        <div class="shimmer-dot" id="shimmer5" style="left:10%; animation-delay:2.2s;"></div>
+      </div>
+
+      <!-- Timer + prompt float above waves -->
+      <div class="timer-content">
+        <div class="timer-display" id="timerDisplay">15:00</div>
+        <div class="timer-label">remaining</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+        <div class="mindfulness-prompt" id="mindfulnessPrompt">&#10022; Notice the craving without judging it</div>
+      </div>
+    </div>
+
+    <!-- ===== COMPLETION SCREEN ===== -->
+    <div class="content screen" id="completionScreen">
+      <!-- Calm ocean behind completion -->
+      <div class="ocean-container" id="completionOcean">
+        <svg class="ocean-svg" viewBox="0 0 400 800" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="calmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="var(--lavender)" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="var(--rose)" stop-opacity="0.15"/>
+            </linearGradient>
+          </defs>
+          <path id="calmWave1" fill="url(#calmGrad)" d="M0,660 C100,655 300,665 400,658 L400,800 L0,800 Z"/>
+          <path id="calmWave2" fill="url(#waveGrad2)" d="M0,675 C100,670 300,680 400,672 L400,800 L0,800 Z"/>
+        </svg>
+        <div class="ocean-overlay"></div>
+      </div>
+      <div class="completion-screen visible">
+        <div class="completion-icon">&#10022;</div>
+        <div class="completion-title">You did it.<br>The wave passed.</div>
+        <div class="completion-sub">You are stronger than any craving</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Rating Overlay -->
+  <div class="rating-overlay" id="ratingOverlay">
+    <div class="rating-sheet">
+      <div class="rating-title">Did this help?</div>
+      <div class="rating-sub">Your feedback helps Kira learn what works for you</div>
+      <div class="rating-stars" id="ratingStars"></div>
+      <button class="rating-submit-btn" id="ratingSubmitBtn" onclick="submitRating()">Submit</button>
+      <div class="rating-skip" onclick="skipRating()">Skip</div>
+    </div>
+  </div>
+
+  <!-- Craving Check-in Overlay -->
+  <div class="checkin-overlay" id="checkinOverlay">
+    <div class="checkin-card">
+      <div class="checkin-handle"></div>
+      <div class="checkin-title">How intense is the urge now?</div>
+      <div class="intensity-scale">
+        <button class="intensity-btn" onclick="answerCheckin(1)">1</button>
+        <button class="intensity-btn" onclick="answerCheckin(2)">2</button>
+        <button class="intensity-btn" onclick="answerCheckin(3)">3</button>
+        <button class="intensity-btn" onclick="answerCheckin(4)">4</button>
+        <button class="intensity-btn" onclick="answerCheckin(5)">5</button>
+      </div>
+      <div class="checkin-dismiss">Dismisses automatically</div>
+    </div>
+  </div>
+
+  <!-- Confirm Exit Dialog -->
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-card">
+      <div class="confirm-text">Leave exercise?</div>
+      <div class="confirm-msg">Your progress won't be saved.</div>
+      <div class="confirm-actions">
+        <button class="confirm-btn confirm-stay" onclick="closeConfirm()">Stay</button>
+        <button class="confirm-btn confirm-leave" onclick="doExit()">Leave</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Celebration Particles -->
+  <div class="particles-container" id="particlesContainer"></div>
+
+  <!-- Error Toast -->
+  <div class="error-toast" id="errorToast">Something went wrong, but you can still exit.</div>
+
+  <script src="../kira-mobile.js"></script>
+  <script>
+    var BACKEND = (window.Kira && window.Kira.API_URL) || 'http://127.0.0.1:5000';
+    var USER_ID = (function() {
+      try { var ws = window.AppInventor.getWebViewString(); if (ws && ws.indexOf('user:') === 0) return ws.split(':')[1]; } catch(e) {}
+      return localStorage.getItem('kira_user') || 'user_1';
+    })();
+
+    /* ── State ── */
+    var chosenMinutes = 15;
+    var totalSeconds = 900;
+    var remainingSeconds = 900;
+    var timerInterval = null;
+    var waveFrame = null;
+    var previewFrame = null;
+    var calmWaveFrame = null;
+    var promptIndex = 0;
+    var promptInterval = null;
+    var checkinTimeout = null;
+    var startTimestamp = 0;
+
+    var prompts = [
+      'Notice the urge without judging it',
+      'Where do you feel it in your body? Place your hand there gently.',
+      'Breathe slowly \u2014 in for 4, hold for 4, out for 6',
+      'You are not the urge \u2014 you are the one watching it',
+      'The wave is rising. Stay with it. You don\u2019t have to act.',
+      'Scan your body from head to toe. What sensations do you notice?',
+      'This feeling is temporary. It will pass.',
+      'Soften your jaw, drop your shoulders, unclench your hands',
+      'What does the urge feel like right now? Has it changed?',
+      'The wave is already passing. You are riding it.',
+      'You have surfed this wave before \u2014 you can do it again',
+      'Each moment you sit with this, your resilience grows'
+    ];
+
+    /* ── Start Screen Wave Preview ── */
+    (function animatePreview() {
+      var path = document.getElementById('previewWave');
+      if (!path) return;
+      var start = Date.now();
+      function frame() {
+        var t = (Date.now() - start) / 1000;
+        var y1 = 100 + Math.sin(t * 0.6) * 8;
+        var y2 = 95 + Math.cos(t * 0.4) * 6;
+        var y3 = 105 + Math.sin(t * 0.8) * 7;
+        var y4 = 98 + Math.cos(t * 0.5) * 5;
+        path.setAttribute('d',
+          'M0,' + y1 + ' C100,' + y2 + ' 300,' + y3 + ' 400,' + y4 + ' L400,140 L0,140 Z'
+        );
+        previewFrame = requestAnimationFrame(frame);
+      }
+      previewFrame = requestAnimationFrame(frame);
+    })();
+
+    /* ── Duration Picker ── */
+    function pickDuration(min) {
+      chosenMinutes = min;
+      totalSeconds = min * 60;
+      remainingSeconds = totalSeconds;
+
+      document.getElementById('btn5').classList.toggle('active', min === 5);
+      document.getElementById('btn15').classList.toggle('active', min === 15);
+      document.getElementById('timerDisplay').textContent = formatTime(remainingSeconds);
+    }
+
+    function formatTime(s) {
+      var m = Math.floor(s / 60);
+      var sec = s % 60;
+      return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
+    }
+
+    /* ── Start Timer ── */
+    function startTimer() {
+      // Stop preview animation
+      if (previewFrame) cancelAnimationFrame(previewFrame);
+
+      showScreen('timerScreen');
+      startTimestamp = Date.now();
+      remainingSeconds = totalSeconds;
+      document.getElementById('timerDisplay').textContent = formatTime(remainingSeconds);
+      document.getElementById('progressBar').style.width = '100%';
+
+      // Start countdown
+      timerInterval = setInterval(tick, 1000);
+
+      // Start wave animation
+      animateWave();
+
+      // Start mindfulness prompts
+      promptIndex = 0;
+      document.getElementById('mindfulnessPrompt').innerHTML = '&#10022; ' + prompts[0];
+      promptInterval = setInterval(rotatePrompt, 45000); // every 45 seconds
+    }
+
+    function tick() {
+      remainingSeconds--;
+      document.getElementById('timerDisplay').textContent = formatTime(remainingSeconds);
+
+      // Update progress bar
+      var pct = (remainingSeconds / totalSeconds) * 100;
+      document.getElementById('progressBar').style.width = pct + '%';
+
+      // Check-in triggers: at 5 min elapsed (10:00 remaining) and 10 min elapsed (5:00 remaining)
+      if (chosenMinutes === 15) {
+        if (remainingSeconds === 600 || remainingSeconds === 300) {
+          showCheckin();
+        }
+      }
+
+      if (remainingSeconds <= 0) {
+        clearInterval(timerInterval);
+        clearInterval(promptInterval);
+        cancelAnimationFrame(waveFrame);
+        onComplete();
+      }
+    }
+
+    /* ── Full-screen Wave Animation ── */
+    function animateWave() {
+      var wave1 = document.getElementById('wave1');
+      var wave2 = document.getElementById('wave2');
+      var wave3 = document.getElementById('wave3');
+      var wave4 = document.getElementById('wave4');
+      var waveCurl = document.getElementById('waveCurl');
+      var waterBody = document.getElementById('waterBody');
+      var surfboard = document.getElementById('surfboard');
+      var shimmers = [
+        document.getElementById('shimmer1'),
+        document.getElementById('shimmer2'),
+        document.getElementById('shimmer3'),
+        document.getElementById('shimmer4'),
+        document.getElementById('shimmer5')
+      ];
+      var startTime = Date.now();
+
+      // viewBox is 0 0 400 800
+      // 30% from bottom = y=560, 70% from bottom = y=240, 20% = y=640
+      // Start: water at ~560 (30%), Peak: ~240 (70%), End: ~640 (20%)
+
+      function frame() {
+        var elapsed = (Date.now() - startTime) / 1000;
+        var progress = Math.min(elapsed / totalSeconds, 1);
+
+        // Intensity curve: peaks around 0.47-0.53
+        var intensity = Math.sin(progress * Math.PI);
+
+        // Water level swells up, crests, then settles lower than where it began.
+        var baseY = 568 - intensity * 330 + Math.max(0, progress - 0.58) * 120;
+
+        // Clamp
+        if (baseY < 200) baseY = 200;
+        if (baseY > 650) baseY = 650;
+
+        // Update water body
+        waterBody.setAttribute('y', baseY);
+        waterBody.setAttribute('height', 800 - baseY);
+
+        var t = elapsed;
+        var amp = 0.3 + intensity * 0.7;
+        var slosh = Math.sin(t * 0.42) * (14 + intensity * 34);
+        var curlX = 338 + Math.sin(t * 0.34) * 20 - intensity * 34;
+        var curlY = baseY - 42 - intensity * 26 + Math.cos(t * 0.5) * 10;
+
+        // Wave 1 (back, most transparent, slowest)
+        var w1y = buildWavePath(baseY - 18, t * 0.36, 24 * amp, 18 * amp, 26 * amp, 16 * amp, slosh * 0.35);
+        wave1.setAttribute('d', w1y);
+
+        // Wave 2
+        var w2y = buildWavePath(baseY - 2, t * 0.52, 22 * amp, 30 * amp, 18 * amp, 24 * amp, -slosh * 0.55);
+        wave2.setAttribute('d', w2y);
+
+        // Wave 3
+        var w3y = buildWavePath(baseY + 10, t * 0.72, 18 * amp, 24 * amp, 32 * amp, 18 * amp, slosh * 0.8);
+        wave3.setAttribute('d', w3y);
+
+        // Wave 4 (front, most opaque, fastest)
+        var w4y = buildWavePath(baseY + 20, t * 0.95, 16 * amp, 20 * amp, 18 * amp, 22 * amp, -slosh);
+        wave4.setAttribute('d', w4y);
+
+        if (waveCurl) {
+          waveCurl.setAttribute('d', buildCurlPath(curlX, curlY, intensity, t));
+          waveCurl.setAttribute('opacity', 0.28 + intensity * 0.58);
+        }
+
+        // Position shimmer dots near the wave surface
+        for (var i = 0; i < shimmers.length; i++) {
+          var shimmerY = baseY + Math.sin(t * 0.5 + i * 1.3) * 8 * amp;
+          // Convert from SVG coords (800 tall) to percent of screen
+          var pct = (shimmerY / 800) * 100;
+          shimmers[i].style.top = pct + '%';
+        }
+
+        if (surfboard) {
+          var boardX = 192 + Math.sin(t * 0.45) * 46 + slosh * 0.25;
+          var boardY = baseY - 28 + Math.sin(t * 0.95) * 14 * amp - intensity * 10;
+          var boardTilt = Math.sin(t * 0.82) * (8 + intensity * 9);
+          surfboard.setAttribute('transform', 'translate(' + boardX + ' ' + boardY + ') rotate(' + boardTilt + ')');
+        }
+
+        waveFrame = requestAnimationFrame(frame);
+      }
+
+      waveFrame = requestAnimationFrame(frame);
+    }
+
+    function buildWavePath(baseY, t, a1, a2, a3, a4, slosh) {
+      // 7 points across for smoother organic curves
+      var y0 = baseY + Math.sin(t * 0.9) * a1 + slosh * 0.15;
+      var y1 = baseY + Math.cos(t * 0.7 + 0.4) * a2 * 0.8 - slosh * 0.2;
+      var y2 = baseY + Math.sin(t * 1.1 + 0.8) * a2 + slosh * 0.3;
+      var y3 = baseY + Math.cos(t * 0.6 + 1.2) * a3 * 0.9 - slosh * 0.35;
+      var y4 = baseY + Math.sin(t * 0.85 + 1.6) * a3 + slosh * 0.45;
+      var y5 = baseY + Math.cos(t * 1.0 + 2.0) * a4 * 0.8 - slosh * 0.25;
+      var y6 = baseY + Math.sin(t * 0.75 + 2.4) * a4 + slosh * 0.2;
+      var xShift = slosh * 0.55;
+
+      return 'M' + (-24 + xShift) + ',' + y0 +
+        ' C28,' + (y0 + (y1 - y0) * 0.7) +
+        ' 46,' + y1 +
+        ' 82,' + y1 +
+        ' S130,' + y2 +
+        ' 166,' + y2 +
+        ' S210,' + y3 +
+        ' 248,' + y3 +
+        ' S292,' + y4 +
+        ' 326,' + y4 +
+        ' S374,' + y5 +
+        ' ' + (424 + xShift) + ',' + y6 +
+        ' L410,800 L-10,800 Z';
+    }
+
+    function buildCurlPath(x, y, intensity, t) {
+      var size = 54 + intensity * 64;
+      var lip = 20 + intensity * 38;
+      var foam = Math.sin(t * 1.8) * 8;
+      var x0 = x - size;
+      var y0 = y + size * 0.4;
+      var x1 = x - size * 0.45;
+      var y1 = y - size * 0.8;
+      var x2 = x + size * 0.62;
+      var y2 = y - size * 0.2 + foam;
+      var x3 = x + size * 0.2;
+      var y3 = y + size * 0.72;
+
+      return 'M' + x0 + ',' + y0 +
+        ' C' + (x0 + 12) + ',' + (y - size * 0.45) +
+        ' ' + x1 + ',' + y1 +
+        ' ' + x + ',' + (y - size * 0.5) +
+        ' C' + (x + size * 0.55) + ',' + (y - size * 0.25) +
+        ' ' + (x + lip) + ',' + y2 +
+        ' ' + (x - 8) + ',' + (y + lip * 0.25) +
+        ' C' + (x + size * 0.4) + ',' + (y + size * 0.18) +
+        ' ' + x3 + ',' + y3 +
+        ' ' + x0 + ',' + y0 + ' Z';
+    }
+
+    /* ── Calm Completion Waves ── */
+    function animateCalmWaves() {
+      var cw1 = document.getElementById('calmWave1');
+      var cw2 = document.getElementById('calmWave2');
+      if (!cw1 || !cw2) return;
+      var startTime = Date.now();
+
+      function frame() {
+        var t = (Date.now() - startTime) / 1000;
+        var y1 = 660 + Math.sin(t * 0.3) * 6;
+        var y2 = 655 + Math.cos(t * 0.25) * 4;
+        var y3 = 665 + Math.sin(t * 0.35) * 5;
+        var y4 = 658 + Math.cos(t * 0.28) * 3;
+
+        cw1.setAttribute('d',
+          'M0,' + y1 + ' C100,' + y2 + ' 300,' + y3 + ' 400,' + y4 + ' L400,800 L0,800 Z'
+        );
+
+        var b1 = 675 + Math.cos(t * 0.25) * 4;
+        var b2 = 670 + Math.sin(t * 0.3) * 3;
+        var b3 = 680 + Math.cos(t * 0.35) * 5;
+        var b4 = 672 + Math.sin(t * 0.2) * 3;
+
+        cw2.setAttribute('d',
+          'M0,' + b1 + ' C100,' + b2 + ' 300,' + b3 + ' 400,' + b4 + ' L400,800 L0,800 Z'
+        );
+
+        calmWaveFrame = requestAnimationFrame(frame);
+      }
+
+      calmWaveFrame = requestAnimationFrame(frame);
+    }
+
+    /* ── Mindfulness Prompts ── */
+    function rotatePrompt() {
+      var el = document.getElementById('mindfulnessPrompt');
+      el.classList.add('fading');
+      setTimeout(function () {
+        promptIndex = (promptIndex + 1) % prompts.length;
+        el.innerHTML = '&#10022; ' + prompts[promptIndex];
+        el.classList.remove('fading');
+      }, 800);
+    }
+
+    /* ── Craving Check-in ── */
+    function showCheckin() {
+      var overlay = document.getElementById('checkinOverlay');
+      overlay.classList.add('visible');
+
+      // Auto-dismiss after 10 seconds
+      checkinTimeout = setTimeout(function () {
+        dismissCheckin();
+      }, 10000);
+    }
+
+    function answerCheckin(level) {
+      clearTimeout(checkinTimeout);
+      // Brief highlight
+      var btns = document.querySelectorAll('.intensity-btn');
+      btns.forEach(function (b) { b.classList.remove('selected'); });
+      document.querySelector('.intensity-btn:nth-child(' + level + ')').classList.add('selected');
+
+      setTimeout(function () {
+        dismissCheckin();
+      }, 600);
+    }
+
+    function dismissCheckin() {
+      document.getElementById('checkinOverlay').classList.remove('visible');
+      // Reset selections
+      document.querySelectorAll('.intensity-btn').forEach(function (b) {
+        b.classList.remove('selected');
+      });
+    }
+
+    var selectedRating = 0;
+
+    /* ── Completion ── */
+    function onComplete() {
+      showScreen('completionScreen');
+      animateCalmWaves();
+      spawnParticles();
+      setTimeout(function() { showRatingPopup(); }, 1500);
+    }
+
+    function spawnParticles() {
+      var container = document.getElementById('particlesContainer');
+      var colors = ['var(--lavender)', 'var(--rose)', 'var(--blush)', 'rgba(255,255,255,0.6)', 'rgba(201,184,232,0.5)'];
+      var types = ['particle-circle', 'particle-star', 'particle-diamond'];
+
+      for (var i = 0; i < 45; i++) {
+        (function (index) {
+          setTimeout(function () {
+            var p = document.createElement('div');
+            var type = types[index % types.length];
+            p.className = 'particle ' + type;
+            p.style.left = (5 + Math.random() * 90) + '%';
+            p.style.bottom = (10 + Math.random() * 15) + '%';
+            p.style.background = colors[index % colors.length];
+            var size = (3 + Math.random() * 9);
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.animationDelay = (Math.random() * 0.8) + 's';
+            p.style.animationDuration = (2.5 + Math.random() * 2.5) + 's';
+            container.appendChild(p);
+
+            setTimeout(function () {
+              if (p.parentNode) p.parentNode.removeChild(p);
+            }, 5500);
+          }, index * 50);
+        })(i);
+      }
+    }
+
+    /* ── Rating Popup ── */
+    function showRatingPopup() {
+      var starsEl = document.getElementById('ratingStars');
+      starsEl.innerHTML = '';
+      for (var i = 1; i <= 5; i++) {
+        var star = document.createElement('div');
+        star.className = 'rating-star';
+        star.textContent = '\u2605';
+        star.dataset.value = i;
+        star.onclick = (function(val) {
+          return function() { selectStar(val); };
+        })(i);
+        starsEl.appendChild(star);
+      }
+      selectedRating = 0;
+      document.getElementById('ratingSubmitBtn').classList.remove('enabled');
+      document.getElementById('ratingOverlay').classList.add('visible');
+    }
+
+    function selectStar(val) {
+      selectedRating = val;
+      var stars = document.querySelectorAll('.rating-star');
+      stars.forEach(function(s, idx) {
+        s.classList.toggle('lit', idx < val);
+      });
+      document.getElementById('ratingSubmitBtn').classList.add('enabled');
+    }
+
+    function getRatingPayload() {
+      var actualSeconds = Math.round((Date.now() - startTimestamp) / 1000);
+      var interventionId = chosenMinutes === 5 ? 'urge_surf_5' : 'urge_surf_15';
+      var interventionName = chosenMinutes === 5 ? '5-Minute Urge Surf' : 'Deep Urge Surf';
+      return {
+        intervention_id: interventionId,
+        intervention_name: interventionName,
+        intervention_type: 'urge_surfing',
+        rating: selectedRating,
+        phase: 'unknown',
+        cycle_day: 0,
+        duration_seconds: actualSeconds,
+        user_id: USER_ID
+      };
+    }
+
+    function getReturnDest() {
+      try {
+        var dest = localStorage.getItem('kira_return_to');
+        localStorage.removeItem('kira_return_to');
+        return dest === 'chat' ? 'chat' : 'interventions';
+      } catch(e) { return 'interventions'; }
+    }
+
+    function submitRating() {
+      if (!selectedRating) return;
+      fetch(BACKEND + '/rate_intervention', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(getRatingPayload())
+      }).catch(function() {});
+      document.getElementById('ratingOverlay').classList.remove('visible');
+      var dest = getReturnDest();
+      setTimeout(function() {
+        window.AppInventor.setWebViewString('navigate:' + dest);
+      }, 400);
+    }
+
+    function skipRating() {
+      document.getElementById('ratingOverlay').classList.remove('visible');
+      var dest = getReturnDest();
+      setTimeout(function() {
+        window.AppInventor.setWebViewString('navigate:' + dest);
+      }, 400);
+    }
+
+    /* ── Screen Management ── */
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(function (s) {
+        s.classList.remove('active');
+      });
+      document.getElementById(id).classList.add('active');
+    }
+
+    /* ── Exit Confirm ── */
+    function confirmExit() {
+      document.getElementById('confirmOverlay').classList.add('visible');
+    }
+
+    function closeConfirm() {
+      document.getElementById('confirmOverlay').classList.remove('visible');
+    }
+
+    function doExit() {
+      clearInterval(timerInterval);
+      clearInterval(promptInterval);
+      if (waveFrame) cancelAnimationFrame(waveFrame);
+      if (calmWaveFrame) cancelAnimationFrame(calmWaveFrame);
+      if (previewFrame) cancelAnimationFrame(previewFrame);
+      var dest = getReturnDest();
+      window.AppInventor.setWebViewString('navigate:' + dest);
+    }
+
+</script>
+</body>
+
+</html>

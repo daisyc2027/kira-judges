@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Kira — Grounding</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --rose: #e8a5b0;
+      --blush: #f2c4ce;
+      --lavender: #c9b8e8;
+      --deep: #2d1f35;
+      --card: rgba(255, 255, 255, 0.09);
+      --border: rgba(255, 255, 255, 0.14);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      height: 100%;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: var(--deep);
+      font-family: 'DM Sans', sans-serif;
+      color: white;
+      touch-action: none;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -30%;
+      left: -20%;
+      width: 70%;
+      height: 70%;
+      background: radial-gradient(circle, rgba(201, 184, 232, 0.22) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -20%;
+      right: -20%;
+      width: 60%;
+      height: 60%;
+      background: radial-gradient(circle, rgba(232, 165, 176, 0.18) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      padding: calc(18px + env(safe-area-inset-top, 0px)) 20px 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      flex-shrink: 0;
+      touch-action: none;
+    }
+
+    .header-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 24px;
+      font-weight: 300;
+      color: var(--blush);
+      letter-spacing: 1px;
+    }
+
+    .exit-btn {
+      position: absolute;
+      right: 20px;
+      top: calc(18px + env(safe-area-inset-top, 0px));
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 18px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .exit-btn:active {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* ── Progress Track ── */
+    .progress-track {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 20px 20px;
+      flex-shrink: 0;
+    }
+
+    .progress-track.hidden {
+      display: none;
+    }
+
+    .progress-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      background: transparent;
+      transition: background 0.4s ease, border-color 0.4s ease;
+    }
+
+    .progress-dot.active {
+      border-color: var(--lavender);
+      background: transparent;
+    }
+
+    .progress-dot.completed {
+      border-color: var(--lavender);
+      background: var(--lavender);
+    }
+
+    /* ── Steps Container ── */
+    .steps-viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      overscroll-behavior: contain;
+    }
+
+    .steps-viewport.hidden {
+      display: none;
+    }
+
+    /* ── Start Screen ── */
+    .start-panel {
+      flex: 1;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 0 24px calc(32px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .start-panel.hidden {
+      display: none;
+    }
+
+    .start-kicker {
+      font-size: 11px;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.38);
+      margin-bottom: 16px;
+    }
+
+    .start-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 38px;
+      font-weight: 300;
+      color: var(--blush);
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .start-copy {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.58);
+      line-height: 1.6;
+      max-width: 310px;
+      margin-bottom: 24px;
+    }
+
+    .primary-btn {
+      width: 100%;
+      max-width: 300px;
+      min-height: 54px;
+      border: none;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--lavender), var(--rose));
+      color: var(--deep);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 8px 28px rgba(201, 184, 232, 0.25);
+    }
+
+    .primary-btn:active {
+      transform: scale(0.97);
+    }
+
+    .step-card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 28px;
+      transform: translateX(100%);
+      transition: transform 0.45s cubic-bezier(0.4, 0.0, 0.2, 1);
+      will-change: transform;
+    }
+
+    .step-card.current {
+      transform: translateX(0);
+    }
+
+    .step-card.exited {
+      transform: translateX(-100%);
+    }
+
+    .step-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 80px;
+      font-weight: 300;
+      color: var(--lavender);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .step-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 22px;
+      font-weight: 300;
+      color: var(--blush);
+      margin-bottom: 32px;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .step-label strong {
+      font-weight: 400;
+      color: white;
+    }
+
+    /* ── Pill Slots ── */
+    .pills-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .pill-slot {
+      height: 48px;
+      min-height: 44px;
+      border-radius: 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      transition: background 0.3s ease, border-color 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .pill-slot.filled {
+      background: rgba(201, 184, 232, 0.2);
+      border-color: rgba(201, 184, 232, 0.4);
+    }
+
+    .pill-input {
+      flex: 1;
+      height: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 300;
+      padding: 0 18px;
+      letter-spacing: 0.3px;
+    }
+
+    .pill-input::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+      font-style: italic;
+    }
+
+    .pill-check {
+      font-size: 16px;
+      color: var(--lavender);
+      opacity: 0;
+      margin-right: 14px;
+      transition: opacity 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .pill-slot.filled .pill-check {
+      opacity: 1;
+    }
+
+    /* ── Next Button ── */
+    .next-btn {
+      margin-top: 32px;
+      padding: 14px 48px;
+      min-height: 48px;
+      border-radius: 28px;
+      border: none;
+      background: var(--lavender);
+      color: var(--deep);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      pointer-events: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .next-btn.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .next-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* ── Completion Screen ── */
+    .completion-card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 28px;
+      transform: translateX(100%);
+      transition: transform 0.45s cubic-bezier(0.4, 0.0, 0.2, 1);
+      will-change: transform;
+    }
+
+    .completion-card.current {
+      transform: translateX(0);
+    }
+
+    .completion-icon {
+      font-size: 56px;
+      color: var(--lavender);
+      margin-bottom: 24px;
+      animation: scaleUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      opacity: 0;
+      transform: scale(0.3);
+    }
+
+    @keyframes scaleUp {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .completion-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 26px;
+      font-weight: 300;
+      color: var(--blush);
+      text-align: center;
+      line-height: 1.4;
+      margin-bottom: 40px;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.4s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── Rating Overlay ── */
+    .rating-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .rating-overlay.visible { opacity: 1; pointer-events: auto; }
+    .rating-sheet {
+      background: #3a2a45;
+      border-radius: 24px 24px 0 0;
+      padding: 28px 24px 36px;
+      width: 100%;
+      max-width: 420px;
+      transform: translateY(100%);
+      transition: transform 0.35s ease;
+      text-align: center;
+    }
+    .rating-overlay.visible .rating-sheet { transform: translateY(0); }
+    .rating-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 300;
+      font-style: italic;
+      color: white;
+      margin-bottom: 6px;
+    }
+    .rating-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 20px;
+    }
+    .rating-stars {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .rating-star {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.14);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: rgba(255,255,255,0.3);
+    }
+    .rating-star.lit {
+      background: rgba(232,165,176,0.2);
+      border-color: rgba(232,165,176,0.4);
+      color: #e8a5b0;
+    }
+    .rating-star:active { transform: scale(0.9); }
+    .rating-submit-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #c9b8e8, #e8a5b0);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: white;
+      cursor: pointer;
+      min-height: 50px;
+      transition: transform 0.15s, opacity 0.3s;
+      opacity: 0.35;
+    }
+    .rating-submit-btn.enabled { opacity: 1; }
+    .rating-submit-btn:active { transform: scale(0.97); }
+    .rating-skip {
+      margin-top: 14px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.3);
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    /* ── Confirm Dialog ── */
+    .dialog-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .dialog-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .dialog-box {
+      background: #3a2a45;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 24px 20px;
+      max-width: 280px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .dialog-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 20px;
+      color: var(--blush);
+      margin-bottom: 8px;
+    }
+
+    .dialog-msg {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.55);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .dialog-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .dialog-btn {
+      flex: 1;
+      padding: 12px 0;
+      min-height: 44px;
+      border-radius: 14px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .dialog-btn.cancel {
+      background: var(--card);
+      color: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--border);
+    }
+
+    .dialog-btn.confirm {
+      background: var(--rose);
+      color: var(--deep);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <!-- Header -->
+    <div class="header">
+      <span class="header-title">Grounding</span>
+      <div class="exit-btn" onclick="showExitDialog()" role="button" aria-label="Exit">&#10005;</div>
+    </div>
+
+    <div class="start-panel" id="startPanel">
+      <div class="start-kicker">5-4-3-2-1 grounding</div>
+      <div class="start-title">Come back to right now</div>
+      <div class="start-copy">Name what you can see, feel, hear, smell, and taste. Start when you are ready.</div>
+      <button class="primary-btn" type="button" onclick="startGrounding()">Start grounding</button>
+    </div>
+
+    <!-- Progress Track -->
+    <div class="progress-track hidden" id="progressTrack">
+      <div class="progress-dot active" id="dot-0"></div>
+      <div class="progress-dot" id="dot-1"></div>
+      <div class="progress-dot" id="dot-2"></div>
+      <div class="progress-dot" id="dot-3"></div>
+      <div class="progress-dot" id="dot-4"></div>
+    </div>
+
+    <!-- Steps Viewport -->
+    <div class="steps-viewport hidden" id="stepsViewport">
+
+      <!-- Step 1: SEE -->
+      <div class="step-card current" id="step-0">
+        <div class="step-number">5</div>
+        <div class="step-label">things you can <strong>SEE</strong></div>
+        <div class="pills-container" id="pills-0"></div>
+        <button class="next-btn" id="next-0" onclick="goNext()">Next</button>
+      </div>
+
+      <!-- Step 2: TOUCH -->
+      <div class="step-card" id="step-1">
+        <div class="step-number">4</div>
+        <div class="step-label">things you can <strong>TOUCH</strong></div>
+        <div class="pills-container" id="pills-1"></div>
+        <button class="next-btn" id="next-1" onclick="goNext()">Next</button>
+      </div>
+
+      <!-- Step 3: HEAR -->
+      <div class="step-card" id="step-2">
+        <div class="step-number">3</div>
+        <div class="step-label">things you can <strong>HEAR</strong></div>
+        <div class="pills-container" id="pills-2"></div>
+        <button class="next-btn" id="next-2" onclick="goNext()">Next</button>
+      </div>
+
+      <!-- Step 4: SMELL -->
+      <div class="step-card" id="step-3">
+        <div class="step-number">2</div>
+        <div class="step-label">things you can <strong>SMELL</strong></div>
+        <div class="pills-container" id="pills-3"></div>
+        <button class="next-btn" id="next-3" onclick="goNext()">Next</button>
+      </div>
+
+      <!-- Step 5: TASTE -->
+      <div class="step-card" id="step-4">
+        <div class="step-number">1</div>
+        <div class="step-label">thing you can <strong>TASTE</strong></div>
+        <div class="pills-container" id="pills-4"></div>
+        <button class="next-btn" id="next-4" onclick="goNext()">Done</button>
+      </div>
+
+      <!-- Completion -->
+      <div class="completion-card" id="completion">
+        <div class="completion-icon">&#10022;</div>
+        <div class="completion-text">You're grounded.<br>Take a breath.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rating Overlay -->
+  <div class="rating-overlay" id="ratingOverlay">
+    <div class="rating-sheet">
+      <div class="rating-title">Did this help?</div>
+      <div class="rating-sub">Your feedback helps Kira learn what works for you</div>
+      <div class="rating-stars" id="ratingStars"></div>
+      <button class="rating-submit-btn" id="ratingSubmitBtn" onclick="submitRating()">Submit</button>
+      <div class="rating-skip" onclick="skipRating()">Skip</div>
+    </div>
+  </div>
+
+  <!-- Exit Confirm Dialog -->
+  <div class="dialog-overlay" id="exitDialog">
+    <div class="dialog-box">
+      <div class="dialog-title">Leave exercise?</div>
+      <div class="dialog-msg">Your progress won't be saved.</div>
+      <div class="dialog-actions">
+        <button class="dialog-btn cancel" onclick="hideExitDialog()">Stay</button>
+        <button class="dialog-btn confirm" onclick="doExit()">Leave</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../kira-mobile.js"></script>
+  <script>
+    var BACKEND = (window.Kira && window.Kira.API_URL) || 'http://127.0.0.1:5000';
+    var USER_ID = (function() {
+      try { var ws = window.AppInventor.getWebViewString(); if (ws && ws.indexOf('user:') === 0) return ws.split(':')[1]; } catch(e) {}
+      return localStorage.getItem('kira_user') || 'user_1';
+    })();
+    var startTime = 0;
+    var currentStep = 0;
+    var totalSteps = 5;
+    var stepsConfig = [5, 4, 3, 2, 1];
+
+    var senseLabels = ['see', 'feel', 'hear', 'smell', 'taste'];
+
+    // Build text input pill slots
+    stepsConfig.forEach(function (count, i) {
+      var container = document.getElementById('pills-' + i);
+      for (var j = 0; j < count; j++) {
+        var pill = document.createElement('div');
+        pill.className = 'pill-slot';
+
+        var input = document.createElement('input');
+        input.className = 'pill-input';
+        input.type = 'text';
+        input.autocomplete = 'off';
+        input.placeholder = 'Something you can ' + senseLabels[i] + '...';
+        input.addEventListener('input', (function (stepIdx, pillEl) {
+          return function () {
+            if (this.value.trim().length > 0) {
+              pillEl.classList.add('filled');
+            } else {
+              pillEl.classList.remove('filled');
+            }
+            checkStepComplete(stepIdx);
+          };
+        })(i, pill));
+
+        var check = document.createElement('span');
+        check.className = 'pill-check';
+        check.innerHTML = '&#10003;';
+
+        pill.appendChild(input);
+        pill.appendChild(check);
+        container.appendChild(pill);
+      }
+    });
+
+    var selectedRating = 0;
+
+    function startGrounding() {
+      startTime = Date.now();
+      document.getElementById('startPanel').classList.add('hidden');
+      document.getElementById('progressTrack').classList.remove('hidden');
+      document.getElementById('stepsViewport').classList.remove('hidden');
+    }
+
+    function checkStepComplete(stepIdx) {
+      var inputs = document.querySelectorAll('#pills-' + stepIdx + ' .pill-input');
+      var allFilled = true;
+      for (var i = 0; i < inputs.length; i++) {
+        if (!inputs[i].value.trim()) {
+          allFilled = false;
+          break;
+        }
+      }
+      if (allFilled) {
+        document.getElementById('next-' + stepIdx).classList.add('visible');
+      } else {
+        document.getElementById('next-' + stepIdx).classList.remove('visible');
+      }
+    }
+
+    function goNext() {
+      if (currentStep >= totalSteps) return;
+
+      // Mark current dot completed
+      document.getElementById('dot-' + currentStep).classList.remove('active');
+      document.getElementById('dot-' + currentStep).classList.add('completed');
+
+      // Slide current card out
+      document.getElementById('step-' + currentStep).classList.remove('current');
+      document.getElementById('step-' + currentStep).classList.add('exited');
+
+      currentStep++;
+
+      if (currentStep < totalSteps) {
+        // Mark next dot active
+        document.getElementById('dot-' + currentStep).classList.add('active');
+        // Slide next step in
+        document.getElementById('step-' + currentStep).classList.add('current');
+      } else {
+        // Show completion then rating popup
+        document.getElementById('completion').classList.add('current');
+        setTimeout(function() { showRatingPopup(); }, 1500);
+      }
+    }
+
+    function showRatingPopup() {
+      var starsEl = document.getElementById('ratingStars');
+      starsEl.innerHTML = '';
+      for (var i = 1; i <= 5; i++) {
+        var star = document.createElement('div');
+        star.className = 'rating-star';
+        star.textContent = '\u2605';
+        star.dataset.value = i;
+        star.onclick = (function(val) {
+          return function() { selectStar(val); };
+        })(i);
+        starsEl.appendChild(star);
+      }
+      selectedRating = 0;
+      document.getElementById('ratingSubmitBtn').classList.remove('enabled');
+      document.getElementById('ratingOverlay').classList.add('visible');
+    }
+
+    function selectStar(val) {
+      selectedRating = val;
+      var stars = document.querySelectorAll('.rating-star');
+      stars.forEach(function(s, idx) {
+        s.classList.toggle('lit', idx < val);
+      });
+      document.getElementById('ratingSubmitBtn').classList.add('enabled');
+    }
+
+    function getRatingPayload() {
+      var elapsed = Math.round((Date.now() - startTime) / 1000);
+      return {
+        intervention_id: '54321',
+        intervention_name: '5-4-3-2-1 Grounding',
+        intervention_type: 'grounding',
+        rating: selectedRating,
+        phase: 'unknown',
+        cycle_day: 0,
+        duration_seconds: elapsed,
+        user_id: USER_ID
+      };
+    }
+
+    function getReturnDest() {
+      try {
+        var dest = localStorage.getItem('kira_return_to');
+        localStorage.removeItem('kira_return_to');
+        return dest === 'chat' ? 'chat' : 'interventions';
+      } catch(e) { return 'interventions'; }
+    }
+
+    function submitRating() {
+      if (!selectedRating) return;
+      fetch(BACKEND + '/rate_intervention', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(getRatingPayload())
+      }).catch(function() {});
+      document.getElementById('ratingOverlay').classList.remove('visible');
+      var dest = getReturnDest();
+      setTimeout(function() {
+        window.AppInventor.setWebViewString('navigate:' + dest);
+      }, 400);
+    }
+
+    function skipRating() {
+      document.getElementById('ratingOverlay').classList.remove('visible');
+      var dest = getReturnDest();
+      setTimeout(function() {
+        window.AppInventor.setWebViewString('navigate:' + dest);
+      }, 400);
+    }
+
+    function showExitDialog() {
+      document.getElementById('exitDialog').classList.add('visible');
+    }
+
+    function hideExitDialog() {
+      document.getElementById('exitDialog').classList.remove('visible');
+    }
+
+    function doExit() {
+      var dest = getReturnDest();
+      window.AppInventor.setWebViewString('navigate:' + dest);
+    }
+
+    // ── Prevent body scroll ──
+    var stepsViewport = document.getElementById('stepsViewport');
+    document.addEventListener('touchmove', function(e) {
+      var target = e.target;
+      while (target && target !== document.body && target !== document.documentElement) {
+        if (target === stepsViewport) return;
+        target = target.parentNode;
+      }
+      e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('focus', function(e) {
+      if (e.target.tagName === 'INPUT') {
+        setTimeout(function() {
+          if (window.Kira && window.Kira.updateKeyboardInset) window.Kira.updateKeyboardInset();
+          e.target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 120);
+      }
+    }, true);
+
+    document.addEventListener('blur', function(e) {
+      if (e.target.tagName === 'INPUT') {
+        if (window.Kira && window.Kira.updateKeyboardInset) {
+          setTimeout(window.Kira.updateKeyboardInset, 120);
+        }
+      }
+    }, true);
+  </script>
+</body>
+
+</html>
