@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Kira</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --rose: #e8a5b0;
+      --blush: #f2c4ce;
+      --lavender: #c9b8e8;
+      --deep: #2d1f35;
+      --card: rgba(255, 255, 255, 0.09);
+      --border: rgba(255, 255, 255, 0.14);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: var(--deep);
+      font-family: 'DM Sans', sans-serif;
+      color: white;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -30%;
+      left: -20%;
+      width: 70%;
+      height: 70%;
+      background: radial-gradient(circle, rgba(201, 184, 232, 0.22) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -20%;
+      right: -20%;
+      width: 60%;
+      height: 60%;
+      background: radial-gradient(circle, rgba(232, 165, 176, 0.18) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .container {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 20px 20px;
+      max-width: 420px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .header {
+      padding: calc(52px + env(safe-area-inset-top, 0px)) 0 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .greeting {
+      font-size: 12px;
+      font-weight: 300;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--blush);
+      opacity: 0.65;
+      margin-bottom: 4px;
+    }
+
+    .app-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 44px;
+      font-weight: 300;
+      font-style: italic;
+      color: white;
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .date-badge {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 8px 14px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 1px;
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+    }
+
+    /* ── Kira card (top) ── */
+    .kira-card {
+      background: linear-gradient(135deg, rgba(74, 53, 88, 0.85), rgba(45, 31, 53, 0.9));
+      border: 1px solid rgba(201, 184, 232, 0.25);
+      border-radius: 24px;
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      animation: fadeUp 0.5s ease both;
+      transition: transform 0.15s;
+      backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .kira-card::after {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201, 184, 232, 0.2), transparent 70%);
+      pointer-events: none;
+    }
+
+    .kira-card:active {
+      transform: scale(0.97);
+    }
+
+    .kira-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--lavender), var(--rose));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      box-shadow: 0 0 20px rgba(201, 184, 232, 0.3);
+    }
+
+    .kira-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .kira-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--lavender);
+      opacity: 0.75;
+      margin-bottom: 4px;
+    }
+
+    .kira-prompt {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 300;
+      font-style: italic;
+      color: white;
+      line-height: 1.3;
+    }
+
+    .kira-status {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.3);
+      margin-top: 4px;
+    }
+
+    .online-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #a8e6a3;
+      margin-right: 5px;
+      vertical-align: middle;
+      animation: blink 2s infinite;
+    }
+
+    /* ── Phase card ── */
+    .phase-card {
+      background: linear-gradient(135deg, rgba(201, 184, 232, 0.18), rgba(232, 165, 176, 0.12));
+      border: 1px solid rgba(201, 184, 232, 0.2);
+      border-radius: 24px;
+      padding: 26px 24px;
+      margin-bottom: 14px;
+      backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.5s 0.08s ease both;
+    }
+
+    .phase-card::after {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201, 184, 232, 0.2), transparent 70%);
+      pointer-events: none;
+    }
+
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--lavender);
+      opacity: 0.7;
+      margin-bottom: 8px;
+    }
+
+    .phase-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 38px;
+      font-weight: 300;
+      font-style: italic;
+      color: white;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .phase-meta {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 20px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 16px;
+    }
+
+    .tendencies-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.35);
+      margin-bottom: 10px;
+    }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .pill {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 5px 13px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .pill.warm {
+      background: rgba(232, 165, 176, 0.15);
+      border-color: rgba(232, 165, 176, 0.25);
+      color: var(--blush);
+    }
+
+    .pill.cool {
+      background: rgba(201, 184, 232, 0.15);
+      border-color: rgba(201, 184, 232, 0.25);
+      color: var(--lavender);
+    }
+
+    /* ── Check-in card ── */
+    .checkin-card {
+      background: linear-gradient(135deg, rgba(232, 165, 176, 0.2), rgba(176, 154, 181, 0.15));
+      border: 1px solid rgba(232, 165, 176, 0.2);
+      border-radius: 24px;
+      padding: 22px 24px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      animation: fadeUp 0.5s 0.16s ease both;
+      transition: transform 0.15s, opacity 0.15s;
+      backdrop-filter: blur(20px);
+    }
+
+    .checkin-card:active {
+      transform: scale(0.97);
+      opacity: 0.85;
+    }
+
+    .checkin-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--rose);
+      opacity: 0.8;
+      margin-bottom: 5px;
+    }
+
+    .checkin-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 300;
+      font-style: italic;
+      color: white;
+      line-height: 1.2;
+    }
+
+    .checkin-sub {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.38);
+      margin-top: 4px;
+    }
+
+    .arrow-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(232, 165, 176, 0.18);
+      border: 1px solid rgba(232, 165, 176, 0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+
+    /* ── Sleep + Diet grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+      animation: fadeUp 0.5s 0.24s ease both;
+    }
+
+    .grid-card {
+      border-radius: 20px;
+      padding: 20px 18px;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+    }
+
+    .grid-card:active {
+      transform: scale(0.95);
+      opacity: 0.8;
+    }
+
+    .grid-card.sleep {
+      background: linear-gradient(135deg, rgba(108, 99, 180, 0.22), rgba(201, 184, 232, 0.12));
+      border-color: rgba(201, 184, 232, 0.18);
+    }
+
+    .grid-card.diet {
+      background: linear-gradient(135deg, rgba(232, 165, 176, 0.18), rgba(245, 200, 175, 0.12));
+      border-color: rgba(232, 165, 176, 0.18);
+    }
+
+    .grid-icon {
+      font-size: 26px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .grid-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: white;
+      margin-bottom: 3px;
+    }
+
+    .grid-sub {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.38);
+      line-height: 1.4;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      padding: 6px 18px;
+      border-radius: 14px;
+      transition: opacity 0.15s;
+    }
+
+    .nav-item:active {
+      opacity: 0.5;
+    }
+
+    .nav-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .nav-label {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .nav-item.active .nav-label {
+      color: var(--blush);
+    }
+
+    .nav-item.active .nav-icon {
+      filter: drop-shadow(0 0 5px rgba(232, 165, 176, 0.5));
+    }
+
+    .settings-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .settings-btn:active { opacity: 0.6; }
+
+    /* ── Check-in Modal ── */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 50;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      touch-action: none;
+    }
+    .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+    .modal-sheet {
+      background: #3a2a45;
+      border-radius: 24px 24px 0 0;
+      padding: 28px 24px 20px;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px) + var(--kira-keyboard-inset, 0px));
+      width: 100%;
+      max-width: 420px;
+      transform: translateY(100%);
+      transition: transform 0.35s ease;
+      max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 12px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-padding-bottom: calc(24px + var(--kira-keyboard-inset, 0px));
+    }
+    .modal-overlay.visible .modal-sheet { transform: translateY(0); }
+    .modal-handle {
+      width: 36px; height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.2);
+      margin: 0 auto 20px;
+    }
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 300;
+      font-style: italic;
+      margin-bottom: 6px;
+    }
+    .modal-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 20px;
+    }
+    .slider-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 10px;
+    }
+    .emoji-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .emoji-btn {
+      flex: 1;
+      height: 52px;
+      border-radius: 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .emoji-btn:active { transform: scale(0.93); }
+    .emoji-btn.selected {
+      background: rgba(201,184,232,0.25);
+      border-color: var(--lavender);
+      transform: scale(1.08);
+    }
+    .modal-textarea {
+      width: 100%;
+      min-height: 70px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: white;
+      resize: none;
+      outline: none;
+      margin-bottom: 16px;
+    }
+    .modal-textarea::placeholder { color: rgba(255,255,255,0.25); font-style: italic; }
+    .modal-textarea:focus { border-color: rgba(201,184,232,0.4); }
+    .modal-submit {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--lavender), var(--rose));
+      border: none;
+      border-radius: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: white;
+      cursor: pointer;
+      min-height: 50px;
+      transition: transform 0.15s;
+    }
+    .modal-submit:active { transform: scale(0.98); }
+    .modal-submit:disabled { opacity: 0.35; }
+    .checkin-done {
+      font-size: 12px;
+      color: var(--lavender);
+      opacity: 0.7;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-wrapper">
+
+    <div class="container">
+
+      <!-- Header -->
+      <div class="header">
+        <div>
+          <div class="greeting" id="greetingText">Good morning</div>
+          <div class="app-name">Kira</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+          <div class="date-badge" id="dateDisplay">—</div>
+          <div class="settings-btn" onclick="navigate('settings')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kira Chat Card (top) -->
+      <div class="kira-card" onclick="navigate('chat')">
+        <div class="kira-avatar">✦</div>
+        <div class="kira-info">
+          <div class="kira-label">Your companion</div>
+          <div class="kira-prompt">Talk to Kira about how you're feeling</div>
+          <div class="kira-status">
+            <span class="online-dot"></span>Always here
+          </div>
+        </div>
+        <div style="font-size:18px;opacity:0.4;margin-left:4px;">→</div>
+      </div>
+
+      <!-- Phase Card -->
+      <div class="phase-card" onclick="navigate('cycle')" style="cursor:pointer;">
+        <div class="section-label">Current Phase</div>
+        <div class="phase-name" id="phaseName">Loading...</div>
+        <div class="phase-meta" id="phaseMeta">—</div>
+        <div class="divider"></div>
+        <div class="tendencies-label" id="tendenciesLabel">Today you may feel</div>
+        <div class="pills" id="tendencyPills"></div>
+      </div>
+
+      <!-- Mood Check-in -->
+      <div class="checkin-card" onclick="openCheckin()">
+        <div>
+          <div class="checkin-label">Daily Check-in</div>
+          <div class="checkin-title" id="checkinTitle">How are you feeling<br>right now?</div>
+          <div class="checkin-sub" id="checkinSub">Takes 30 seconds</div>
+        </div>
+        <div class="arrow-btn">→</div>
+      </div>
+
+      <!-- Grid -->
+      <div class="grid">
+        <div class="grid-card sleep" onclick="navigate('sleep')">
+          <span class="grid-icon">🌙</span>
+          <div class="grid-title">Sleep</div>
+          <div class="grid-sub">Log last night's rest</div>
+        </div>
+        <div class="grid-card diet" onclick="navigate('diet')">
+          <span class="grid-icon">🌿</span>
+          <div class="grid-title">Nutrition</div>
+          <div class="grid-sub">Track cravings & meals</div>
+        </div>
+        <div class="grid-card" id="toolkitCard" style="background:linear-gradient(135deg,rgba(201,184,232,0.18),rgba(176,154,181,0.12));border-color:rgba(201,184,232,0.18);" onclick="navigate('interventions')">
+          <span class="grid-icon">✦</span>
+          <div class="grid-title">Toolkit</div>
+          <div class="grid-sub">Breathing, grounding & more</div>
+        </div>
+        <div class="grid-card" id="insightsCard" style="background:linear-gradient(135deg,rgba(232,165,176,0.15),rgba(201,184,232,0.12));border-color:rgba(232,165,176,0.15);" onclick="navigate('insights')">
+          <span class="grid-icon">📊</span>
+          <div class="grid-title">Insights</div>
+          <div class="grid-sub">Your trends & history</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Check-in Modal -->
+  <div class="modal-overlay" id="checkinModal" onclick="closeCheckinBg(event)">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">How are you feeling?</div>
+      <div class="modal-sub">Tap an emoji, then describe how you're feeling</div>
+      <div class="slider-label">Overall mood</div>
+      <div class="emoji-row" id="emojiRow">
+        <div class="emoji-btn" onclick="selectMood(this,1)">😞</div>
+        <div class="emoji-btn" onclick="selectMood(this,2)">😔</div>
+        <div class="emoji-btn" onclick="selectMood(this,3)">😐</div>
+        <div class="emoji-btn" onclick="selectMood(this,4)">🙂</div>
+        <div class="emoji-btn" onclick="selectMood(this,5)">😊</div>
+      </div>
+      <textarea class="modal-textarea" id="checkinText" placeholder="What's on your mind? (optional)"></textarea>
+      <button class="modal-submit" id="checkinSubmitBtn" onclick="submitCheckin()" disabled>Log check-in</button>
+    </div>
+  </div>
+
+  <script src="kira-mobile.js"></script>
+  <script>
+
+    var BACKEND = (window.Kira && window.Kira.API_URL) || 'http://127.0.0.1:5000';
+    var USER_ID = (function() {
+      try {
+        var ws = window.AppInventor.getWebViewString();
+        if (ws && ws.indexOf('user:') === 0) return ws.split(':')[1];
+      } catch(e) {}
+      return localStorage.getItem('kira_user') || 'user_1';
+    })();
+    localStorage.setItem('kira_user', USER_ID);
+
+    // Greeting based on time
+    var hour = new Date().getHours();
+    var greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    document.getElementById('greetingText').textContent = greeting;
+
+    // Date display
+    var now = new Date();
+    var dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    document.getElementById('dateDisplay').textContent = dateStr;
+
+    // Default phase tendencies (fallback)
+    var defaultTendencies = {
+      menstrual: ['Low energy', 'Introspective', 'Rest needed', 'High sensitivity'],
+      follicular: ['Rising energy', 'Creative clarity', 'Motivated', 'Social openness'],
+      ovulatory: ['Peak confidence', 'High energy', 'Communicative', 'Assertive'],
+      luteal: ['Higher sensitivity', 'Craving intensity', 'Lower energy', 'Introspective']
+    };
+
+    // Tendency pill type mapping
+    var warmWords = ['sensitivity', 'craving', 'low energy', 'rest', 'tired', 'irritab'];
+    var coolWords = ['energy', 'creative', 'confidence', 'motivated', 'introspective', 'communicat'];
+
+    function getPillType(text) {
+      var lower = text.toLowerCase();
+      for (var i = 0; i < warmWords.length; i++) {
+        if (lower.indexOf(warmWords[i]) !== -1) return 'warm';
+      }
+      for (var i = 0; i < coolWords.length; i++) {
+        if (lower.indexOf(coolWords[i]) !== -1) return 'cool';
+      }
+      return '';
+    }
+
+    function renderTendencies(tendencies) {
+      document.getElementById('tendencyPills').innerHTML = tendencies.map(function(t) {
+        return '<span class="pill ' + getPillType(t) + '">' + t + '</span>';
+      }).join('');
+    }
+
+    // Fetch user data + cycle info
+    function loadHomeData() {
+      fetch(BACKEND + '/home_data?user_id=' + USER_ID)
+        .then(function(res) {
+          if (!res.ok) throw new Error('Failed');
+          return res.json();
+        })
+        .then(function(data) {
+          // Update greeting with name
+          if (data.name) {
+            document.getElementById('greetingText').textContent = greeting + ', ' + data.name;
+          }
+
+          // Store for check-in
+          currentPhase = data.phase || '';
+          currentCycleDay = data.cycle_day || 0;
+
+          // Update phase card
+          var phase = data.phase || 'luteal';
+          document.getElementById('phaseName').textContent =
+            phase.charAt(0).toUpperCase() + phase.slice(1);
+          document.getElementById('phaseMeta').textContent =
+            'Day ' + (data.cycle_day || '—') + ' \u00b7 ' + (data.next_period_in_days || '—') + ' days until next period';
+
+          // Update tendencies
+          var tendencies = data.tendencies || defaultTendencies[phase] || [];
+          renderTendencies(tendencies);
+
+          // Show personalisation note
+          if (data.personalised) {
+            document.getElementById('tendenciesLabel').textContent = 'Based on your data';
+          } else {
+            document.getElementById('tendenciesLabel').textContent = 'Today you may feel';
+          }
+        })
+        .catch(function() {
+          // Fallback to defaults
+          document.getElementById('phaseName').textContent = 'Welcome';
+          document.getElementById('phaseMeta').textContent = 'Log your period to see your cycle';
+          renderTendencies(defaultTendencies.follicular);
+        });
+    }
+
+    // Also keep updatePhase for App Inventor to call directly if needed
+    function updatePhase(phase, cycleDay, nextPeriodDays) {
+      document.getElementById('phaseName').textContent =
+        phase.charAt(0).toUpperCase() + phase.slice(1);
+      document.getElementById('phaseMeta').textContent =
+        'Day ' + cycleDay + ' \u00b7 ' + nextPeriodDays + ' days until next period';
+      renderTendencies(defaultTendencies[phase] || defaultTendencies.luteal);
+    }
+
+    // Navigation
+    var navigating = false;
+    function navigate(screen) {
+      if (navigating) return;
+      navigating = true;
+      window.AppInventor.setWebViewString('navigate:' + screen);
+    }
+
+    // ── Check-in modal ──
+    var selectedMoodRating = 0;
+    var checkinDoneToday = localStorage.getItem('kira_checkin_' + USER_ID + '_' + new Date().toDateString());
+
+    if (checkinDoneToday) {
+      document.getElementById('checkinTitle').textContent = 'Checked in today';
+      document.getElementById('checkinSub').innerHTML = '<span class="checkin-done">Tap to update</span>';
+    }
+
+    var checkinTextarea = document.getElementById('checkinText');
+    var modalSheet = document.querySelector('.modal-sheet');
+
+    function openCheckin() {
+      document.getElementById('checkinModal').classList.add('visible');
+      if (window.Kira && window.Kira.updateKeyboardInset) window.Kira.updateKeyboardInset();
+    }
+    function closeCheckin() {
+      if (document.activeElement) document.activeElement.blur();
+      document.getElementById('checkinModal').classList.remove('visible');
+      if (window.Kira && window.Kira.updateKeyboardInset) {
+        setTimeout(window.Kira.updateKeyboardInset, 120);
+      }
+    }
+    function closeCheckinBg(e) {
+      if (e.target === document.getElementById('checkinModal')) {
+        closeCheckin();
+      }
+    }
+
+    checkinTextarea.addEventListener('focus', function() {
+      setTimeout(function() {
+        if (window.Kira && window.Kira.updateKeyboardInset) window.Kira.updateKeyboardInset();
+        checkinTextarea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 120);
+    });
+
+    checkinTextarea.addEventListener('blur', function() {
+      if (window.Kira && window.Kira.updateKeyboardInset) {
+        setTimeout(window.Kira.updateKeyboardInset, 120);
+      }
+    });
+    function selectMood(el, rating) {
+      selectedMoodRating = rating;
+      var btns = document.querySelectorAll('.emoji-btn');
+      for (var i = 0; i < btns.length; i++) btns[i].classList.remove('selected');
+      el.classList.add('selected');
+      document.getElementById('checkinSubmitBtn').disabled = false;
+    }
+    function submitCheckin() {
+      if (!selectedMoodRating) return;
+      var text = document.getElementById('checkinText').value.trim();
+      var moodLabels = { 1: 'very_low', 2: 'low', 3: 'neutral', 4: 'good', 5: 'great' };
+
+      fetch(BACKEND + '/log_checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: text,
+          phase: currentPhase || 'unknown',
+          cycle_day: currentCycleDay || 0,
+          user_id: USER_ID,
+          mood_rating: selectedMoodRating
+        })
+      }).catch(function() {});
+
+      // Mark as done
+      localStorage.setItem('kira_checkin_' + USER_ID + '_' + new Date().toDateString(), 'true');
+      closeCheckin();
+      document.getElementById('checkinTitle').textContent = 'Checked in today';
+      document.getElementById('checkinSub').innerHTML = '<span class="checkin-done">Tap to update</span>';
+    }
+
+    var currentPhase = '';
+    var currentCycleDay = 0;
+
+    // Block background scroll when modal is open
+    document.getElementById('checkinModal').addEventListener('touchmove', function(e) {
+      // Allow scrolling inside modal-sheet, block on overlay background
+      var target = e.target;
+      while (target && target !== this) {
+        if (target === modalSheet) return;
+        target = target.parentNode;
+      }
+      e.preventDefault();
+    }, { passive: false });
+
+    // Load on init
+    loadHomeData();
+
+    // Store phase data when loaded
+    var origLoadSuccess = function(data) {
+      currentPhase = data.phase || '';
+      currentCycleDay = data.cycle_day || 0;
+    };
+
+    // ── First-time Tutorial ──
+    (function() {
+      if (localStorage.getItem('kira_tutorial_done_' + USER_ID)) return;
+
+      // Inject tutorial styles
+      var tutorialStyle = document.createElement('style');
+      tutorialStyle.textContent = [
+        '.tutorial-overlay {',
+        '  position: fixed; inset: 0; z-index: 9998;',
+        '  pointer-events: none; opacity: 0;',
+        '  transition: opacity 0.4s ease;',
+        '}',
+        '.tutorial-overlay.active { opacity: 1; }',
+        '.tutorial-spotlight {',
+        '  position: absolute; z-index: 9998;',
+        '  border-radius: 20px;',
+        '  box-shadow: 0 0 0 9999px rgba(0,0,0,0.6);',
+        '  pointer-events: none;',
+        '  transition: top 0.35s ease, left 0.35s ease, width 0.35s ease, height 0.35s ease;',
+        '}',
+        '.tutorial-tooltip {',
+        '  position: absolute; z-index: 9999;',
+        '  background: #3a2a45;',
+        '  border: 1px solid rgba(255,255,255,0.14);',
+        '  border-radius: 18px;',
+        '  padding: 20px;',
+        '  width: 280px;',
+        '  pointer-events: auto;',
+        '  opacity: 0;',
+        '  transform: translateY(10px);',
+        '  transition: opacity 0.3s ease 0.15s, transform 0.3s ease 0.15s;',
+        '}',
+        '.tutorial-tooltip.visible {',
+        '  opacity: 1; transform: translateY(0);',
+        '}',
+        '.tutorial-step-indicator {',
+        '  font-family: "DM Sans", sans-serif;',
+        '  font-size: 11px; color: rgba(255,255,255,0.35);',
+        '  letter-spacing: 1px; margin-bottom: 8px;',
+        '}',
+        '.tutorial-title {',
+        '  font-family: "Cormorant Garamond", serif;',
+        '  font-size: 22px; font-weight: 300; font-style: italic;',
+        '  color: white; margin-bottom: 6px; line-height: 1.2;',
+        '}',
+        '.tutorial-desc {',
+        '  font-family: "DM Sans", sans-serif;',
+        '  font-size: 13px; color: rgba(255,255,255,0.6);',
+        '  line-height: 1.5; margin-bottom: 16px;',
+        '}',
+        '.tutorial-next-btn {',
+        '  width: 100%; padding: 12px;',
+        '  background: linear-gradient(135deg, #c9b8e8, #e8a5b0);',
+        '  border: none; border-radius: 14px;',
+        '  font-family: "DM Sans", sans-serif;',
+        '  font-size: 14px; font-weight: 500;',
+        '  color: white; cursor: pointer;',
+        '  transition: transform 0.15s;',
+        '}',
+        '.tutorial-next-btn:active { transform: scale(0.97); }',
+        '.tutorial-skip {',
+        '  display: block; text-align: center;',
+        '  margin-top: 10px; font-family: "DM Sans", sans-serif;',
+        '  font-size: 12px; color: rgba(255,255,255,0.3);',
+        '  cursor: pointer; background: none; border: none;',
+        '  text-decoration: underline;',
+        '  text-underline-offset: 2px;',
+        '  pointer-events: auto;',
+        '}',
+        '.tutorial-skip:active { color: rgba(255,255,255,0.5); }'
+      ].join('\n');
+      document.head.appendChild(tutorialStyle);
+
+      var steps = [
+        { selector: '.settings-btn', title: 'Choose Reminders', desc: 'In Settings, you can turn on daily check-in, sleep, water, and period reminders. Use the test button there first to make sure notifications work on your phone.' },
+        { selector: '.kira-card', title: 'Talk to Kira', desc: 'Your AI companion is always here to listen. Share how you\'re feeling and get personalised support.' },
+        { selector: '.phase-card', title: 'Your Cycle', desc: 'Track your cycle phases and see how hormones affect your mood, energy, and cravings.' },
+        { selector: '.checkin-card', title: 'Daily Check-in', desc: 'Rate your mood each day — Kira learns your patterns and personalises everything over time.' },
+        { selector: '.grid-card.sleep', title: 'Track Sleep', desc: 'Log your sleep and get AI insights on how your cycle affects rest.' },
+        { selector: '.grid-card.diet', title: 'Nutrition', desc: 'Track cravings, meals, and how food feels in your body so Kira can spot patterns across your cycle.' },
+        { selector: '#toolkitCard', title: 'Your Toolkit', desc: 'Breathing exercises, grounding, journaling and more — all tailored to how you\'re feeling.' },
+        { selector: '#insightsCard', title: 'Insights', desc: 'See your trends, journal history, and what works best for you over time.' }
+      ];
+      var currentStep = 0;
+      var overlay, spotlight, tooltip;
+      var container = document.querySelector('.container');
+
+      function createTutorialDOM() {
+        overlay = document.createElement('div');
+        overlay.className = 'tutorial-overlay';
+
+        spotlight = document.createElement('div');
+        spotlight.className = 'tutorial-spotlight';
+
+        tooltip = document.createElement('div');
+        tooltip.className = 'tutorial-tooltip';
+
+        overlay.appendChild(spotlight);
+        overlay.appendChild(tooltip);
+        document.body.appendChild(overlay);
+      }
+
+      function positionStep(index) {
+        var step = steps[index];
+        var el = document.querySelector(step.selector);
+        if (!el) return;
+
+        // Scroll element into view within the container
+        var containerRect = container.getBoundingClientRect();
+        var elRect = el.getBoundingClientRect();
+        var pad = 8;
+
+        // If element is below visible area or above, scroll it
+        if (elRect.bottom > containerRect.bottom || elRect.top < containerRect.top) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Recalc after potential scroll
+        setTimeout(function() {
+          var rect = el.getBoundingClientRect();
+          var sp = 8; // spotlight padding
+
+          spotlight.style.top = (rect.top - sp) + 'px';
+          spotlight.style.left = (rect.left - sp) + 'px';
+          spotlight.style.width = (rect.width + sp * 2) + 'px';
+          spotlight.style.height = (rect.height + sp * 2) + 'px';
+
+          // Build tooltip content
+          var isLast = index === steps.length - 1;
+          tooltip.innerHTML =
+            '<div class="tutorial-step-indicator">' + (index + 1) + ' of ' + steps.length + '</div>' +
+            '<div class="tutorial-title">' + step.title + '</div>' +
+            '<div class="tutorial-desc">' + step.desc + '</div>' +
+            '<button class="tutorial-next-btn" id="tutorialNextBtn">' + (isLast ? 'Get started' : 'Next') + '</button>' +
+            '<button class="tutorial-skip" id="tutorialSkipBtn">Skip tutorial</button>';
+
+          // Position tooltip below or above the spotlight
+          var tooltipWidth = 280;
+          var spotBottom = rect.bottom + sp + 12;
+          var spotTop = rect.top - sp - 12;
+          var vpHeight = window.innerHeight;
+          var vpWidth = window.innerWidth;
+
+          // Prefer below, but if not enough room, go above
+          if (spotBottom + 200 < vpHeight) {
+            tooltip.style.top = spotBottom + 'px';
+            tooltip.style.bottom = 'auto';
+          } else {
+            tooltip.style.top = 'auto';
+            tooltip.style.bottom = (vpHeight - spotTop) + 'px';
+          }
+
+          // Center horizontally relative to spotlight, but clamp to viewport
+          var centerX = rect.left + rect.width / 2 - tooltipWidth / 2;
+          centerX = Math.max(12, Math.min(centerX, vpWidth - tooltipWidth - 12));
+          tooltip.style.left = centerX + 'px';
+
+          // Show tooltip with animation
+          tooltip.classList.remove('visible');
+          requestAnimationFrame(function() {
+            tooltip.classList.add('visible');
+          });
+
+          // Bind events
+          document.getElementById('tutorialNextBtn').onclick = function(e) {
+            e.stopPropagation();
+            if (isLast) {
+              finishTutorial();
+            } else {
+              currentStep++;
+              tooltip.classList.remove('visible');
+              setTimeout(function() { positionStep(currentStep); }, 200);
+            }
+          };
+          document.getElementById('tutorialSkipBtn').onclick = function(e) {
+            e.stopPropagation();
+            finishTutorial();
+          };
+        }, 350);
+      }
+
+      function finishTutorial() {
+        localStorage.setItem('kira_tutorial_done_' + USER_ID, 'true');
+        overlay.style.transition = 'opacity 0.4s ease';
+        overlay.classList.remove('active');
+        setTimeout(function() {
+          if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 450);
+      }
+
+      function startTutorial() {
+        createTutorialDOM();
+        requestAnimationFrame(function() {
+          overlay.classList.add('active');
+          positionStep(0);
+        });
+      }
+
+      // Start 1 second after page load
+      setTimeout(startTutorial, 1000);
+    })();
+  </script>
+</body>
+
+</html>

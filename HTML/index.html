@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Kira</title>
+  <script src="kira-mobile.js"></script>
+</head>
+<body>
+  <script>
+    (function() {
+      var userId = localStorage.getItem('kira_user');
+      var authToken = localStorage.getItem('kira_auth_token');
+      if (userId && authToken) {
+        window.location.replace('home.html');
+      } else {
+        localStorage.removeItem('kira_user');
+        localStorage.removeItem('kira_auth_token');
+        window.location.replace('onboarding.html');
+      }
+    })();
+  </script>
+</body>
+</html>

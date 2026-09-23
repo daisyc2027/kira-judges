@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Kira - History</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --rose: #e8a5b0;
+      --blush: #f2c4ce;
+      --lavender: #c9b8e8;
+      --deep: #2d1f35;
+      --card: rgba(255,255,255,0.09);
+      --border: rgba(255,255,255,0.14);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--deep);
+      font-family: 'DM Sans', sans-serif;
+      color: white;
+      touch-action: none;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -28%;
+      left: -22%;
+      width: 72%;
+      height: 72%;
+      background: radial-gradient(circle, rgba(201,184,232,0.22), transparent 70%);
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      right: -22%;
+      bottom: -24%;
+      width: 64%;
+      height: 64%;
+      background: radial-gradient(circle, rgba(232,165,176,0.16), transparent 70%);
+      pointer-events: none;
+    }
+
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    .header {
+      padding: calc(16px + env(safe-area-inset-top, 0px)) 20px 12px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+      max-width: 420px;
+      width: 100%;
+      margin: 0 auto;
+      background: rgba(45,31,53,0.92);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .back-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: rgba(255,255,255,0.65);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 31px;
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1;
+    }
+
+    .container {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      overscroll-behavior: contain;
+      padding: 16px 20px 34px;
+      max-width: 420px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.62);
+      border-radius: 999px;
+      min-height: 38px;
+      padding: 0 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(201,184,232,0.32), rgba(232,165,176,0.22));
+      color: white;
+      border-color: rgba(255,255,255,0.24);
+    }
+
+    .summary {
+      margin: 8px 0 16px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .summary-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--lavender);
+      opacity: 0.7;
+      margin-bottom: 5px;
+    }
+
+    .summary-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 23px;
+      font-weight: 300;
+      font-style: italic;
+      margin-bottom: 4px;
+    }
+
+    .summary-meta {
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.42);
+    }
+
+    .date-group {
+      margin-top: 18px;
+    }
+
+    .date-heading {
+      font-size: 10px;
+      letter-spacing: 2.4px;
+      color: rgba(255,255,255,0.36);
+      text-transform: uppercase;
+      margin: 0 0 9px 2px;
+    }
+
+    .record-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 15px 16px;
+      margin-bottom: 10px;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .record-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .record-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: white;
+      line-height: 1.25;
+    }
+
+    .record-date {
+      font-size: 11px;
+      color: rgba(255,255,255,0.38);
+      white-space: nowrap;
+      padding-top: 2px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0 2px;
+    }
+
+    .pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.62);
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .record-text {
+      margin-top: 7px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: rgba(255,255,255,0.67);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .small-meta {
+      margin-top: 7px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: rgba(255,255,255,0.42);
+    }
+
+    .empty-state, .error-state {
+      text-align: center;
+      padding: 56px 14px;
+      color: rgba(255,255,255,0.38);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .empty-symbol {
+      font-size: 30px;
+      color: rgba(255,255,255,0.32);
+      margin-bottom: 10px;
+    }
+
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--deep);
+      color: rgba(255,255,255,0.42);
+      font-size: 13px;
+      letter-spacing: 2px;
+      transition: opacity 0.25s ease;
+    }
+
+    .loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">LOADING</div>
+
+  <div class="page-wrapper">
+    <div class="header">
+      <button class="back-btn" type="button" onclick="goBack()">&#8592;</button>
+      <div class="header-title" id="pageTitle">History</div>
+    </div>
+
+    <div class="container">
+      <div class="tabs" id="tabs"></div>
+      <div class="summary" id="summary"></div>
+      <div id="records"></div>
+    </div>
+  </div>
+
+  <script src="kira-mobile.js"></script>
+  <script>
+
+    var BACKEND = (window.Kira && window.Kira.API_URL) || 'http://127.0.0.1:5000';
+    var USER_ID = (function() {
+      try { var ws = window.AppInventor.getWebViewString(); if (ws && ws.indexOf('user:') === 0) return ws.split(':')[1]; } catch(e) {}
+      return localStorage.getItem('kira_user') || 'user_1';
+    })();
+
+    var types = [
+      { key: 'emotion', label: 'Mood', title: 'Mood History' },
+      { key: 'sleep', label: 'Sleep', title: 'Sleep History' },
+      { key: 'diet', label: 'Nutrition', title: 'Nutrition History' },
+      { key: 'journal', label: 'Journal', title: 'Journal History' },
+      { key: 'intervention', label: 'Tools', title: 'Toolkit History' }
+    ];
+    var params = new URLSearchParams(window.location.search);
+    var activeType = params.get('type') || 'emotion';
+    var returnScreen = params.get('from') || 'insights';
+    if (['insights', 'sleep', 'diet', 'home'].indexOf(returnScreen) === -1) returnScreen = 'insights';
+    if (!types.some(function(t) { return t.key === activeType; })) activeType = 'emotion';
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function getDateValue(log) {
+      return log.date || log.created_at || log.timestamp || '';
+    }
+
+    function parseDate(dateStr) {
+      var d = new Date(dateStr);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    function formatDate(dateStr) {
+      var d = parseDate(dateStr);
+      if (!d) return 'Undated';
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    }
+
+    function groupLabel(dateStr) {
+      var d = parseDate(dateStr);
+      if (!d) return 'Undated';
+      var now = new Date();
+      var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      var target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      var diff = Math.round((today - target) / 86400000);
+      if (diff === 0) return 'Today';
+      if (diff === 1) return 'Yesterday';
+      return formatDate(dateStr);
+    }
+
+    function goBack() {
+      if (document.referrer && document.referrer.indexOf(window.location.origin) === 0) {
+        history.back();
+        return;
+      }
+      window.AppInventor.setWebViewString('navigate:' + returnScreen);
+    }
+
+    function switchType(type) {
+      activeType = type;
+      history.replaceState(null, '', 'data.html?type=' + encodeURIComponent(type) + '&from=' + encodeURIComponent(returnScreen));
+      loadLogs();
+    }
+
+    function renderTabs() {
+      var html = '';
+      for (var i = 0; i < types.length; i++) {
+        html += '<button class="tab-btn' + (types[i].key === activeType ? ' active' : '') + '" type="button" onclick="switchType(\'' + types[i].key + '\')">' + types[i].label + '</button>';
+      }
+      document.getElementById('tabs').innerHTML = html;
+    }
+
+    function renderSummary(logs) {
+      var config = types.find(function(t) { return t.key === activeType; }) || types[0];
+      document.getElementById('pageTitle').textContent = config.title;
+      document.getElementById('summary').innerHTML =
+        '<div class="summary-label">FULL RECORD</div>' +
+        '<div class="summary-title">' + escapeHtml(config.title) + '</div>' +
+        '<div class="summary-meta">' + logs.length + ' saved entr' + (logs.length === 1 ? 'y' : 'ies') + '</div>';
+    }
+
+    function titleFor(log) {
+      if (activeType === 'sleep') {
+        var hours = Number(log.hours || 0);
+        return (hours ? (hours % 1 === 0 ? String(hours) : hours.toFixed(1)) : '0') + ' hours';
+      }
+      if (activeType === 'diet') {
+        var cravings = Array.isArray(log.cravings) ? log.cravings : [];
+        return cravings.length ? cravings.slice(0, 3).join(', ') : 'Nutrition log';
+      }
+      if (activeType === 'journal') return log.prompt || 'Journal entry';
+      if (activeType === 'intervention') return log.intervention_name || log.name || 'Intervention';
+      return log.emotion || 'Mood log';
+    }
+
+    function renderPills(log) {
+      var pills = [];
+      if (log.phase) pills.push(log.phase + ' phase');
+      if (log.cycle_day) pills.push('day ' + log.cycle_day);
+      if (activeType === 'sleep' && log.quality) pills.push(log.quality);
+      if (activeType === 'emotion' && log.mood_rating) pills.push('mood ' + log.mood_rating + '/10');
+      if (activeType === 'diet' && log.body_feel) pills.push(log.body_feel);
+      if (activeType === 'intervention' && log.rating) pills.push(log.rating + '/5');
+      if (!pills.length) return '';
+      return '<div class="pill-row">' + pills.map(function(p) { return '<span class="pill">' + escapeHtml(p) + '</span>'; }).join('') + '</div>';
+    }
+
+    function renderText(log) {
+      if (activeType === 'sleep') return log.notes || log.insight || '';
+      if (activeType === 'diet') return log.ate || log.insight || '';
+      if (activeType === 'journal') {
+        var body = log.entry || '';
+        if (!body && Array.isArray(log.responses)) {
+          body = log.responses.map(function(item) {
+            return (item.prompt ? item.prompt + '\n' : '') + (item.response || '');
+          }).join('\n\n');
+        }
+        return body;
+      }
+      if (activeType === 'intervention') return log.notes || log.reflection || log.context || '';
+      return log.user_text || log.text || log.notes || '';
+    }
+
+    function renderRecords(logs) {
+      var container = document.getElementById('records');
+      if (!logs.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-symbol">&#10022;</div>No saved records here yet.</div>';
+        return;
+      }
+
+      var html = '';
+      var lastGroup = '';
+      for (var i = 0; i < logs.length; i++) {
+        var log = logs[i];
+        var date = getDateValue(log);
+        var group = groupLabel(date);
+        if (group !== lastGroup) {
+          if (lastGroup) html += '</div>';
+          html += '<div class="date-group"><div class="date-heading">' + escapeHtml(group) + '</div>';
+          lastGroup = group;
+        }
+
+        var text = renderText(log);
+        html += '<div class="record-card">';
+        html += '<div class="record-top"><div class="record-title">' + escapeHtml(titleFor(log)) + '</div><div class="record-date">' + escapeHtml(formatDate(date)) + '</div></div>';
+        html += renderPills(log);
+        if (activeType === 'diet' && Array.isArray(log.cravings) && log.cravings.length) {
+          html += '<div class="small-meta">Cravings: ' + escapeHtml(log.cravings.join(', ')) + '</div>';
+        }
+        if (text) html += '<div class="record-text">' + escapeHtml(text) + '</div>';
+        html += '</div>';
+      }
+      if (lastGroup) html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function hideLoading() {
+      var el = document.getElementById('loadingScreen');
+      el.classList.add('hidden');
+      setTimeout(function() { el.style.display = 'none'; }, 260);
+    }
+
+    function loadLogs() {
+      renderTabs();
+      document.getElementById('summary').innerHTML = '';
+      document.getElementById('records').innerHTML = '<div class="empty-state">Loading records...</div>';
+
+      fetch(BACKEND + '/recent_logs?type=' + encodeURIComponent(activeType) + '&user_id=' + encodeURIComponent(USER_ID) + '&limit=100')
+        .then(function(res) {
+          if (!res.ok) throw new Error('Failed');
+          return res.json();
+        })
+        .then(function(data) {
+          var logs = data.logs || data || [];
+          logs.sort(function(a, b) {
+            return String(getDateValue(b)).localeCompare(String(getDateValue(a)));
+          });
+          renderSummary(logs);
+          renderRecords(logs);
+        })
+        .catch(function() {
+          document.getElementById('summary').innerHTML = '<div class="summary-label">FULL RECORD</div><div class="summary-title">History</div>';
+          document.getElementById('records').innerHTML = '<div class="error-state">Could not load this history right now.</div>';
+        })
+        .finally(hideLoading);
+    }
+
+    loadLogs();
+  </script>
+</body>
+</html>

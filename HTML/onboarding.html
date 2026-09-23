@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Welcome to Kira</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --rose: #e8a5b0;
+      --blush: #f2c4ce;
+      --lavender: #c9b8e8;
+      --deep: #2d1f35;
+      --card: rgba(255,255,255,0.09);
+      --border: rgba(255,255,255,0.14);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html {
+      height: 100%;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: var(--deep);
+      font-family: 'DM Sans', sans-serif;
+      color: white;
+      touch-action: none;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -30%; left: -20%;
+      width: 70%; height: 70%;
+      background: radial-gradient(circle, rgba(201,184,232,0.22) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -20%; right: -20%;
+      width: 60%; height: 60%;
+      background: radial-gradient(circle, rgba(232,165,176,0.18) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .top-bar {
+      flex-shrink: 0;
+      padding: calc(52px + env(safe-area-inset-top, 0px)) 28px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      touch-action: none;
+    }
+
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--lavender);
+      flex-shrink: 0;
+      transition: opacity 0.15s;
+    }
+    .back-btn:active { opacity: 0.6; }
+    .back-btn.hidden { opacity: 0; pointer-events: none; }
+
+    .progress-bar {
+      flex: 1;
+      display: flex;
+      gap: 5px;
+    }
+
+    .progress-step {
+      flex: 1;
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.12);
+      transition: background 0.4s ease;
+    }
+    .progress-step.active { background: var(--lavender); }
+    .progress-step.done { background: rgba(201,184,232,0.4); }
+
+    .steps-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      touch-action: pan-y;
+      overscroll-behavior: contain;
+      scroll-padding-bottom: calc(32px + var(--kira-keyboard-inset, 0px));
+    }
+
+    .step {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 40px 28px 0;
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      pointer-events: none;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+    .step.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+    .step.exiting {
+      opacity: 0;
+      transform: translateX(-40px);
+    }
+    .step.entering-back {
+      transform: translateX(-40px);
+    }
+
+    .step-label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--lavender);
+      opacity: 0.7;
+      margin-bottom: 12px;
+    }
+
+    .step-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 34px;
+      font-weight: 300;
+      font-style: italic;
+      color: white;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+
+    .step-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .kira-hero {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--lavender), var(--rose));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 8px 32px rgba(201,184,232,0.3);
+      animation: heroFloat 3s ease-in-out infinite;
+    }
+    @keyframes heroFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .welcome-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .privacy-note {
+      font-size: 12px;
+      color: rgba(255,255,255,0.42);
+      line-height: 1.55;
+      margin-top: 14px;
+    }
+
+    .privacy-note.compact {
+      margin-top: 4px;
+      margin-bottom: 18px;
+    }
+
+    .privacy-link {
+      color: var(--blush);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 17px;
+      background: linear-gradient(135deg, var(--lavender), var(--rose));
+      border: none;
+      border-radius: 18px;
+      font-size: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(201,184,232,0.3);
+      transition: transform 0.15s, opacity 0.15s;
+      letter-spacing: 0.5px;
+      min-height: 52px;
+    }
+    .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+    .btn-primary:disabled { opacity: 0.35; }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 17px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 18px;
+      font-size: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      color: rgba(255,255,255,0.8);
+      cursor: pointer;
+      transition: transform 0.15s;
+      letter-spacing: 0.5px;
+      min-height: 52px;
+    }
+    .btn-secondary:active { transform: scale(0.98); }
+
+    .field-input {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 16px;
+      padding: 16px 20px;
+      font-size: 17px;
+      font-family: 'DM Sans', sans-serif;
+      color: white;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+      min-height: 52px;
+    }
+    .field-input::placeholder { color: rgba(255,255,255,0.25); }
+    .field-input:focus { border-color: rgba(201,184,232,0.5); }
+
+    .field-group {
+      margin-bottom: 14px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 8px;
+    }
+
+    .field-error {
+      font-size: 12px;
+      color: var(--rose);
+      margin-top: 8px;
+      min-height: 18px;
+      transition: opacity 0.2s;
+    }
+
+    .field-hint {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      margin-top: 6px;
+    }
+
+    input[type="date"] { color-scheme: dark; }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 16px;
+      padding: 12px 20px;
+      width: fit-content;
+    }
+    .stepper-btn {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .stepper-btn:active { opacity: 0.6; }
+    .stepper-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 42px;
+      font-weight: 300;
+      min-width: 60px;
+      text-align: center;
+      background: none;
+      border: none;
+      color: white;
+      outline: none;
+      width: 70px;
+      padding: 0;
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+    .stepper-value::-webkit-inner-spin-button,
+    .stepper-value::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      appearance: none;
+      margin: 0;
+    }
+    .stepper-unit { font-size: 13px; color: rgba(255,255,255,0.4); }
+
+    .mood-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .mood-chip {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 52px;
+    }
+    .mood-chip:active { transform: scale(0.97); }
+    .mood-chip.selected {
+      background: rgba(201,184,232,0.2);
+      border-color: rgba(201,184,232,0.45);
+    }
+    .mood-emoji { font-size: 22px; }
+    .mood-label { font-size: 14px; color: rgba(255,255,255,0.8); }
+
+    .done-animation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding-bottom: 60px;
+    }
+    .done-circle {
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--lavender), var(--rose));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(201,184,232,0.35);
+      animation: doneScale 0.5s ease both;
+    }
+    @keyframes doneScale {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .done-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      font-weight: 300;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+    .done-sub {
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.6;
+      max-width: 260px;
+    }
+    .personalising-text {
+      margin-top: 32px;
+      font-size: 13px;
+      color: var(--lavender);
+      opacity: 0.7;
+      letter-spacing: 1px;
+    }
+
+    .bottom-area {
+      flex-shrink: 0;
+      padding: 16px 28px 40px;
+      touch-action: none;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-size: 13px;
+      color: var(--rose);
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 50;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper" id="pageWrapper">
+
+    <div class="top-bar" id="topBar">
+      <div class="back-btn hidden" id="backBtn" onclick="prevStep()">&#8592;</div>
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-step" id="ps1"></div>
+        <div class="progress-step" id="ps2"></div>
+        <div class="progress-step" id="ps3"></div>
+        <div class="progress-step" id="ps4"></div>
+        <div class="progress-step" id="ps5"></div>
+        <div class="progress-step" id="ps6"></div>
+        <div class="progress-step" id="ps7"></div>
+      </div>
+    </div>
+
+    <div class="steps-container">
+
+      <div class="step active" id="step1">
+        <div class="kira-hero">&#10022;</div>
+        <div class="step-title">Welcome to Kira</div>
+        <div class="step-sub">Your personal cycle companion. Kira learns your patterns and helps you navigate your emotions, energy, and wellbeing.</div>
+        <div class="welcome-actions">
+          <button class="btn-primary" onclick="goToSignup()">Create account</button>
+          <button class="btn-secondary" onclick="goToLogin()">I already have an account</button>
+        </div>
+        <div class="privacy-note">
+          By continuing, you can review Kira's
+          <a class="privacy-link" href="https://sites.google.com/view/kira-wellness-privacy-policy/home" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="step-label">Create account</div>
+        <div class="step-title">Choose a<br>username</div>
+        <div class="step-sub">This is how Kira will know you.</div>
+        <div class="field-group">
+          <div class="field-label">Username</div>
+          <input class="field-input" type="text" id="signupUsername" placeholder="e.g. luna_23" autocomplete="off" autocorrect="off" autocapitalize="off">
+          <div class="field-hint">3–20 characters, letters, numbers, underscores</div>
+          <div class="field-error" id="usernameError"></div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Password</div>
+          <input class="field-input" type="password" id="signupPassword" placeholder="At least 8 characters">
+          <div class="field-error" id="passwordError"></div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Confirm password</div>
+          <input class="field-input" type="password" id="signupConfirm" placeholder="Type it again">
+          <div class="field-error" id="confirmError"></div>
+        </div>
+        <div class="privacy-note compact">
+          By creating an account, you acknowledge Kira's
+          <a class="privacy-link" href="https://sites.google.com/view/kira-wellness-privacy-policy/home" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+        </div>
+      </div>
+
+      <div class="step" id="step2b">
+        <div class="step-label">Welcome back</div>
+        <div class="step-title">Log in to<br>Kira</div>
+        <div class="step-sub">Pick up where you left off.</div>
+        <div class="field-group">
+          <div class="field-label">Username</div>
+          <input class="field-input" type="text" id="loginUsername" placeholder="Your username" autocomplete="off" autocorrect="off" autocapitalize="off">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Password</div>
+          <input class="field-input" type="password" id="loginPassword" placeholder="Your password">
+          <div class="field-error" id="loginError"></div>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="step-label">Let's get personal</div>
+        <div class="step-title">What's your<br>name?</div>
+        <div class="step-sub">Kira will use this to personalise everything for you.</div>
+        <input class="field-input" type="text" id="nameInput" placeholder="Your first name" autocomplete="off" autocorrect="off">
+      </div>
+
+      <div class="step" id="step4">
+        <div class="step-label">About you</div>
+        <div class="step-title" id="ageTitle">How old are<br>you?</div>
+        <div class="step-sub">This helps Kira understand your hormonal profile better.</div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="adjustAge(-1)">&#8722;</button>
+          <input class="stepper-value" id="ageValue" type="number" value="25" inputmode="numeric" min="13" max="60" onchange="clampAge()" onblur="clampAge()">
+          <button class="stepper-btn" onclick="adjustAge(1)">+</button>
+          <div class="stepper-unit">years</div>
+        </div>
+      </div>
+
+      <div class="step" id="step5" style="justify-content:center;padding-bottom:80px;align-items:center;text-align:center;">
+        <div class="step-label">Your cycle</div>
+        <div class="step-title">When did your<br>last period<br>start?</div>
+        <div class="step-sub">Kira uses this to track your cycle phase in real time.</div>
+        <input class="field-input" type="date" id="periodInput" style="max-width:220px;text-align:center;">
+      </div>
+
+      <div class="step" id="step6">
+        <div class="step-label">Your cycle</div>
+        <div class="step-title">How long is<br>your average<br>cycle?</div>
+        <div class="step-sub">Most cycles are 21–35 days. Don't worry if you're not sure.</div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="adjustCycle(-1)">&#8722;</button>
+          <input class="stepper-value" id="cycleValue" type="number" value="28" inputmode="numeric" min="21" max="45" onchange="clampCycle()" onblur="clampCycle()">
+          <button class="stepper-btn" onclick="adjustCycle(1)">+</button>
+          <div class="stepper-unit">days</div>
+        </div>
+      </div>
+
+      <div class="step" id="step7">
+        <div class="step-label" id="moodLabel">Almost there</div>
+        <div class="step-title" id="moodTitle">How are you<br>feeling today?</div>
+        <div class="step-sub">Select everything that applies.</div>
+        <div class="mood-grid">
+          <div class="mood-chip" onclick="toggleMood(this,'anxious')"><span class="mood-emoji">&#128560;</span><span class="mood-label">Anxious</span></div>
+          <div class="mood-chip" onclick="toggleMood(this,'tired')"><span class="mood-emoji">&#128564;</span><span class="mood-label">Tired</span></div>
+          <div class="mood-chip" onclick="toggleMood(this,'irritable')"><span class="mood-emoji">&#128548;</span><span class="mood-label">Irritable</span></div>
+          <div class="mood-chip" onclick="toggleMood(this,'sad')"><span class="mood-emoji">&#128532;</span><span class="mood-label">Low mood</span></div>
+          <div class="mood-chip" onclick="toggleMood(this,'motivated')"><span class="mood-emoji">&#10024;</span><span class="mood-label">Motivated</span></div>
+          <div class="mood-chip" onclick="toggleMood(this,'calm')"><span class="mood-emoji">&#127807;</span><span class="mood-label">Calm</span></div>
+          <div class="mood-chip" onclick="toggleMood(this,'overwhelmed')"><span class="mood-emoji">&#127754;</span><span class="mood-label">Overwhelmed</span></div>
+          <div class="mood-chip" onclick="toggleMood(this,'happy')"><span class="mood-emoji">&#127800;</span><span class="mood-label">Happy</span></div>
+        </div>
+      </div>
+
+      <div class="step" id="step8">
+        <div class="done-animation">
+          <div class="done-circle">&#10022;</div>
+          <div class="done-title" id="doneTitle">You're all set</div>
+          <div class="done-sub" id="doneSub">Kira is personalising your experience right now.</div>
+          <div class="personalising-text" id="personalisingText">Setting up your profile...</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottom-area" id="bottomArea">
+      <button class="btn-primary" id="nextBtn" onclick="nextStep()" style="display:none;">Continue</button>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="kira-mobile.js"></script>
+  <script>
+    var BACKEND = (window.Kira && window.Kira.API_URL) || 'http://127.0.0.1:5000';
+
+    function fetchWithTimeout(url, options, timeoutMs) {
+      return Promise.race([
+        fetch(url, options),
+        new Promise(function(_, reject) {
+          setTimeout(function() {
+            reject(new Error('Request timed out'));
+          }, timeoutMs);
+        })
+      ]);
+    }
+
+    function fetchWithRetry(url, options, onWaking) {
+      return fetchWithTimeout(url, options, 20000)
+        .catch(function() {
+          if (onWaking) onWaking();
+          return fetchWithTimeout(url, options, 50000);
+        });
+    }
+
+    function parseJsonSafely(res) {
+      return res.json()
+        .then(function(d) {
+          return { ok: res.ok, data: d };
+        })
+        .catch(function() {
+          return { ok: res.ok, data: null };
+        });
+    }
+
+    function sendToAppInventor(value) {
+      if (window.AppInventor && typeof window.AppInventor.setWebViewString === 'function') {
+        setTimeout(function() {
+          window.AppInventor.setWebViewString(value);
+        }, 200);
+      } else {
+        console.log('AppInventor bridge not available:', value);
+      }
+    }
+
+    var signupFlow = [1, 2, 3, 4, 5, 6, 7];
+    var loginFlow = [1, '2b'];
+    var currentFlow = null;
+    var flowIndex = 0;
+    var userId = 'user_1';
+    var isLoading = false;
+
+    var userData = {
+      name: '',
+      age: 25,
+      last_period_date: '',
+      cycle_length: 28,
+      current_moods: []
+    };
+
+    var today = new Date();
+    var yyyy = today.getFullYear();
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var dd = String(today.getDate()).padStart(2, '0');
+    document.getElementById('periodInput').value = yyyy + '-' + mm + '-' + dd;
+    document.getElementById('periodInput').max = yyyy + '-' + mm + '-' + dd;
+
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2500);
+    }
+
+    function goToSignup() {
+      currentFlow = signupFlow;
+      flowIndex = 0;
+      goForward();
+    }
+
+    function goToLogin() {
+      currentFlow = loginFlow;
+      flowIndex = 0;
+      goForward();
+    }
+
+    function getCurrentStepId() {
+      if (!currentFlow || flowIndex < 0 || flowIndex >= currentFlow.length) return 'step1';
+      return 'step' + currentFlow[flowIndex];
+    }
+
+    function goForward() {
+      if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+      }
+
+      setTimeout(function() {
+        var wrapper = document.getElementById('pageWrapper');
+        wrapper.style.height = '';
+        window.scrollTo(0, 0);
+
+        var curEl = document.querySelector('.step.active');
+        if (curEl) {
+          curEl.classList.add('exiting');
+          curEl.classList.remove('active');
+        }
+
+        flowIndex++;
+        updateUI();
+
+        setTimeout(function() {
+          if (curEl) curEl.classList.remove('exiting');
+          var nextEl = document.getElementById(getCurrentStepId());
+          if (nextEl) nextEl.classList.add('active');
+        }, 350);
+      }, 150);
+    }
+
+    function goBack() {
+      if (flowIndex <= 0) return;
+
+      if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+      }
+      var wrapper = document.getElementById('pageWrapper');
+      wrapper.style.height = '';
+      window.scrollTo(0, 0);
+
+      var curEl = document.querySelector('.step.active');
+      if (curEl) {
+        curEl.style.transition = 'none';
+        curEl.style.transform = 'translateX(40px)';
+        curEl.style.opacity = '0';
+        curEl.classList.remove('active');
+        setTimeout(function() { curEl.style.transition = ''; }, 10);
+      }
+
+      flowIndex--;
+      updateUI();
+
+      setTimeout(function() {
+        var prevEl = document.getElementById(getCurrentStepId());
+        if (prevEl) {
+          prevEl.style.transition = 'none';
+          prevEl.style.transform = 'translateX(-40px)';
+          prevEl.style.opacity = '0';
+          prevEl.classList.add('active');
+          setTimeout(function() {
+            prevEl.style.transition = '';
+            prevEl.style.transform = '';
+            prevEl.style.opacity = '';
+          }, 20);
+        }
+      }, 10);
+    }
+
+    function updateUI() {
+      var stepKey = currentFlow[flowIndex];
+
+      var backBtn = document.getElementById('backBtn');
+      if (flowIndex > 0) {
+        backBtn.classList.remove('hidden');
+      } else {
+        backBtn.classList.add('hidden');
+      }
+
+      var progressBar = document.getElementById('progressBar');
+      if (currentFlow === signupFlow && flowIndex >= 1) {
+        progressBar.style.display = '';
+        var total = 7;
+        for (var i = 1; i <= total; i++) {
+          var el = document.getElementById('ps' + i);
+          var progressIdx = flowIndex;
+          if (i < progressIdx) {
+            el.className = 'progress-step done';
+          } else if (i === progressIdx) {
+            el.className = 'progress-step active';
+          } else {
+            el.className = 'progress-step';
+          }
+        }
+      } else if (currentFlow === loginFlow) {
+        progressBar.style.display = 'none';
+      } else {
+        progressBar.style.display = 'none';
+      }
+
+      var nextBtn = document.getElementById('nextBtn');
+      if (stepKey === 1) {
+        nextBtn.style.display = 'none';
+      } else if (stepKey === 2) {
+        nextBtn.style.display = '';
+        nextBtn.textContent = 'Create account';
+        nextBtn.onclick = function() { nextStep(); };
+      } else if (stepKey === '2b') {
+        nextBtn.style.display = '';
+        nextBtn.textContent = 'Log in';
+        nextBtn.onclick = function() { nextStep(); };
+      } else if (stepKey === 7) {
+        nextBtn.style.display = '';
+        nextBtn.textContent = 'Meet Kira →';
+        nextBtn.onclick = function() { nextStep(); };
+      } else {
+        nextBtn.style.display = '';
+        nextBtn.textContent = 'Continue';
+        nextBtn.onclick = function() { nextStep(); };
+      }
+    }
+
+    function nextStep() {
+      if (isLoading) return;
+      var stepKey = currentFlow[flowIndex];
+
+      if (stepKey === 2) {
+        var username = document.getElementById('signupUsername').value.trim();
+        var pw = document.getElementById('signupPassword').value;
+        var confirm = document.getElementById('signupConfirm').value;
+        var nextBtn = document.getElementById('nextBtn');
+
+        document.getElementById('usernameError').textContent = '';
+        document.getElementById('passwordError').textContent = '';
+        document.getElementById('confirmError').textContent = '';
+
+        var valid = true;
+        if (!username || username.length < 3) {
+          document.getElementById('usernameError').textContent = 'At least 3 characters';
+          valid = false;
+        } else if (username.length > 20) {
+          document.getElementById('usernameError').textContent = '20 characters max';
+          valid = false;
+        } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+          document.getElementById('usernameError').textContent = 'Letters, numbers, and underscores only';
+          valid = false;
+        }
+
+        if (pw.length < 8) {
+          document.getElementById('passwordError').textContent = 'At least 8 characters';
+          valid = false;
+        }
+
+        if (pw !== confirm) {
+          document.getElementById('confirmError').textContent = 'Passwords don’t match';
+          valid = false;
+        }
+
+        if (!valid) return;
+
+        isLoading = true;
+        nextBtn.disabled = true;
+        nextBtn.textContent = 'Creating account...';
+
+        fetchWithRetry(BACKEND + '/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: username, password: pw })
+        }, function() {
+          nextBtn.textContent = 'Waking server...';
+        })
+        .then(parseJsonSafely)
+        .then(function(result) {
+          isLoading = false;
+          nextBtn.disabled = false;
+          nextBtn.textContent = 'Create account';
+
+          if (!result.ok || !result.data || result.data.status !== 'ok' || !result.data.user_id) {
+            document.getElementById('usernameError').textContent =
+              (result.data && result.data.error) || 'Signup failed';
+            return;
+          }
+
+          userId = result.data.user_id;
+          localStorage.setItem('kira_user', userId);
+          if (result.data.auth_token) {
+            localStorage.setItem('kira_auth_token', result.data.auth_token);
+            if (window.Kira && window.Kira.setAuthToken) window.Kira.setAuthToken(result.data.auth_token);
+          }
+          goForward();
+        })
+        .catch(function(err) {
+          isLoading = false;
+          nextBtn.disabled = false;
+          nextBtn.textContent = 'Create account';
+          showToast('Server took too long or connection failed');
+          console.log('Signup error:', err);
+        });
+        return;
+      }
+
+      if (stepKey === '2b') {
+        var lu = document.getElementById('loginUsername').value.trim();
+        var lp = document.getElementById('loginPassword').value;
+        var loginBtn = document.getElementById('nextBtn');
+
+        document.getElementById('loginError').textContent = '';
+
+        if (!lu || !lp) {
+          document.getElementById('loginError').textContent = 'Enter your username and password';
+          return;
+        }
+
+        isLoading = true;
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Logging in...';
+
+        fetchWithRetry(BACKEND + '/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: lu, password: lp })
+        }, function() {
+          loginBtn.textContent = 'Waking server...';
+        })
+        .then(parseJsonSafely)
+        .then(function(result) {
+          isLoading = false;
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Log in';
+
+          if (!result.ok || !result.data || result.data.status !== 'ok' || !result.data.user_id) {
+            document.getElementById('loginError').textContent =
+              (result.data && result.data.error) || 'Login failed';
+            return;
+          }
+
+          userId = result.data.user_id;
+          localStorage.setItem('kira_user', userId);
+          if (result.data.auth_token) {
+            localStorage.setItem('kira_auth_token', result.data.auth_token);
+            if (window.Kira && window.Kira.setAuthToken) window.Kira.setAuthToken(result.data.auth_token);
+          }
+
+          if (result.data.onboarding_complete) {
+            sendToAppInventor('navigate:home:' + userId);
+          } else {
+            currentFlow = signupFlow;
+            flowIndex = 1;
+            goForward();
+          }
+        })
+        .catch(function(err) {
+          isLoading = false;
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Log in';
+          showToast('Server took too long or connection failed');
+          console.log('Login error:', err);
+        });
+        return;
+      }
+
+      if (stepKey === 3) {
+        var name = document.getElementById('nameInput').value.trim();
+        if (!name) {
+          document.getElementById('nameInput').focus();
+          document.getElementById('nameInput').style.borderColor = 'rgba(232,165,176,0.6)';
+          return;
+        }
+        userData.name = name;
+        document.getElementById('ageTitle').innerHTML = 'How old are<br>you, ' + name + '?';
+        document.getElementById('moodLabel').textContent = 'Almost there, ' + name;
+      }
+
+      if (stepKey === 4) {
+        userData.age = parseInt(document.getElementById('ageValue').value) || 25;
+      }
+
+      if (stepKey === 5) {
+        userData.last_period_date = document.getElementById('periodInput').value;
+        if (!userData.last_period_date) {
+          document.getElementById('periodInput').focus();
+          return;
+        }
+        var todayStr = yyyy + '-' + mm + '-' + dd;
+        if (userData.last_period_date > todayStr) {
+          showToast('Date cannot be in the future');
+          return;
+        }
+      }
+
+      if (stepKey === 6) {
+        userData.cycle_length = parseInt(document.getElementById('cycleValue').value) || 28;
+      }
+
+      if (stepKey === 7) {
+        submitOnboarding();
+        return;
+      }
+
+      goForward();
+    }
+
+    function prevStep() {
+      if (flowIndex <= 0) return;
+
+      var stepKey = currentFlow[flowIndex];
+      if (stepKey === 2 || stepKey === '2b') {
+        var curEl = document.querySelector('.step.active');
+        if (curEl) {
+          curEl.classList.remove('active');
+        }
+        flowIndex = 0;
+        currentFlow = null;
+
+        document.getElementById('backBtn').classList.add('hidden');
+        document.getElementById('progressBar').style.display = 'none';
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('step1').classList.add('active');
+        return;
+      }
+
+      goBack();
+    }
+
+    function adjustAge(delta) {
+      var el = document.getElementById('ageValue');
+      var val = parseInt(el.value) || 25;
+      val = Math.max(13, Math.min(60, val + delta));
+      el.value = val;
+    }
+    function clampAge() {
+      var el = document.getElementById('ageValue');
+      var val = parseInt(el.value);
+      if (isNaN(val) || val < 13) val = 13;
+      if (val > 60) val = 60;
+      el.value = val;
+    }
+    function adjustCycle(delta) {
+      var el = document.getElementById('cycleValue');
+      var val = parseInt(el.value) || 28;
+      val = Math.max(21, Math.min(45, val + delta));
+      el.value = val;
+    }
+    function clampCycle() {
+      var el = document.getElementById('cycleValue');
+      var val = parseInt(el.value);
+      if (isNaN(val) || val < 21) val = 21;
+      if (val > 45) val = 45;
+      el.value = val;
+    }
+
+    function toggleMood(el, mood) {
+      el.classList.toggle('selected');
+      if (el.classList.contains('selected')) {
+        if (userData.current_moods.indexOf(mood) === -1) userData.current_moods.push(mood);
+      } else {
+        userData.current_moods = userData.current_moods.filter(function(m) { return m !== mood; });
+      }
+    }
+
+    async function submitOnboarding() {
+      var curEl = document.querySelector('.step.active');
+      if (curEl) {
+        curEl.classList.add('exiting');
+        curEl.classList.remove('active');
+      }
+
+      setTimeout(function() {
+        if (curEl) curEl.classList.remove('exiting');
+        document.getElementById('topBar').style.opacity = '0';
+        document.getElementById('bottomArea').style.display = 'none';
+        document.getElementById('step8').classList.add('active');
+        document.getElementById('doneTitle').textContent = 'You’re all set, ' + userData.name + ' ✦';
+      }, 350);
+
+      try {
+        document.getElementById('personalisingText').textContent = 'Saving your profile...';
+        userData.user_id = userId;
+
+        var saveRes = await fetchWithRetry(BACKEND + '/save_onboarding', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(userData)
+        }, 12000);
+
+        var saveResult = await parseJsonSafely(saveRes);
+
+        if (!saveResult.ok || !saveResult.data || saveResult.data.status !== 'ok') {
+          throw new Error('Onboarding save failed');
+        }
+
+        document.getElementById('personalisingText').textContent = 'Calculating your cycle phase...';
+        await new Promise(function(r) { setTimeout(r, 1000); });
+
+        document.getElementById('personalisingText').textContent = 'Preparing your home screen...';
+        await new Promise(function(r) { setTimeout(r, 1000); });
+
+        document.getElementById('personalisingText').textContent = 'Ready ✦';
+        await new Promise(function(r) { setTimeout(r, 600); });
+
+        sendToAppInventor('navigate:home:' + userId);
+      } catch(err) {
+        console.log('Onboarding save error:', err);
+        document.getElementById('personalisingText').textContent = 'Could not save your profile. Please try again.';
+        showToast('Could not save onboarding');
+      }
+    }
+
+    var stepsContainer = document.querySelector('.steps-container');
+    document.addEventListener('touchmove', function(e) {
+      var target = e.target;
+      while (target && target !== document.body && target !== document.documentElement) {
+        if (target === stepsContainer) return;
+        target = target.parentNode;
+      }
+      e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('focus', function(e) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        setTimeout(function() {
+          if (window.Kira && window.Kira.updateKeyboardInset) window.Kira.updateKeyboardInset();
+          e.target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 120);
+      }
+    }, true);
+
+    document.addEventListener('blur', function(e) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        if (window.Kira && window.Kira.updateKeyboardInset) {
+          setTimeout(window.Kira.updateKeyboardInset, 120);
+        }
+      }
+    }, true);
+
+    fetch(BACKEND + '/health').catch(function(err) {
+      console.log('Health check failed:', err);
+    });
+  </script>
+</body>
+</html>
