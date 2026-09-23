@@ -1,0 +1,19 @@
+{
+  "appId": "com.kira.wellness",
+  "appName": "Kira",
+  "webDir": "HTML",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "backgroundColor": "#2d1f35",
+      "showSpinner": false
+    },
+    "LocalNotifications": {
+      "iconColor": "#c9b8e8",
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  }
+}

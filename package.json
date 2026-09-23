@@ -1,0 +1,26 @@
+{
+  "name": "kira-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kira mobile app shell for iOS and Android.",
+  "scripts": {
+    "dev": "python3 app.py",
+    "cap:init": "cap init Kira com.kira.wellness --web-dir HTML",
+    "cap:add:ios": "cap add ios",
+    "cap:add:android": "cap add android",
+    "cap:sync": "cap sync",
+    "cap:open:ios": "cap open ios",
+    "cap:open:android": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.2",
+    "@capacitor/app": "^7.0.1",
+    "@capacitor/core": "^7.4.2",
+    "@capacitor/haptics": "^7.0.1",
+    "@capacitor/ios": "^7.4.2",
+    "@capacitor/local-notifications": "^7.0.7"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.2"
+  }
+}
